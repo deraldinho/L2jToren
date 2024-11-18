@@ -1,0 +1,17 @@
+Este documento é para representar a documentoção do projeto L2jToren.
+
+
+*Mods - ADD*
+    - IconIventoryDate
+    - autofarm
+    - Voice Command
+        * .Online
+        * .BankingSystem ".deposit/.withdraw"
+        * .Menu
+            - Party Refusal
+            - Trade Refusal
+            - Buffs Refusal
+            - Message Refusal
+            - Auto GoldBar
+    - NPC Buffer
+

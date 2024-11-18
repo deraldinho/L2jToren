@@ -1,0 +1,60 @@
+<html>
+<body>
+<br>
+<center>
+<font color=LEVEL>Targets da %area% "%area_name%"</font>
+<table width=110>
+    <tr>
+        <td>
+            Selecionados: %target_count%
+        </td>
+        <td>
+            <button action="bypass -h autofarm targets page 1" width=14 height=14 back=L2UI_ch3.ShortcutWnd.shortcut_rotate_over fore=L2UI_ch3.ShortcutWnd.shortcut_rotate>
+        </td>
+    </tr>
+</table>
+</center>
+<br>
+<table>
+    <tr>
+        <td width=8></td>
+        <td>
+            <img src="L2UI.SquareGray" width=250 height=1>
+            <table cellpadding=2 bgcolor=000000>
+                <tr>
+                    <td width=4></td>
+                    <td width=240>
+                        Nome
+                    </td>
+                </tr>
+            </table>
+            <img src="L2UI.SquareGray" width=250 height=1>
+        </td>
+    </tr>
+    <tr><td></td></tr>
+    <tr>
+        <td></td>
+        <td>
+            <table>
+                %list%
+            </table>
+        </td>
+    </tr>
+</table>
+<br>
+%pagination%
+<br>
+<center>
+<table>
+    <tr>
+        <td width=40>
+            <a action="bypass autofarm index">Voltar</a>
+        </td>
+        <td width=40>
+            <a action="bypass autofarm targets clear">Limpar</a>
+        </td>
+    </tr>
+</table>
+</center>
+</body>
+</html>

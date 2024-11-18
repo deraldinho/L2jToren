@@ -1,0 +1,56 @@
+<html>
+<body>
+<br>
+<center><font color=LEVEL>Macro</font></center>
+<br>
+Você pode definir uma determinada ação customizada para ser executada assim que o Auto Farm for encerrado pelo&nbsp;<a action="bypass autofarm timer">timer</a>.
+<br>
+Caso o character esteja atacando no momento final, o encerramento será adiado até que o monstro seja morto.
+<br>
+%msg%
+<table>
+    <tr>
+        <td>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <td>
+                        <button action="bypass autofarm macro set ESCAPE 0" width=14 height=14 back=L2UI.control.checkBox_%ESCAPE% fore=L2UI.control.checkBox_%ESCAPE%>
+                    </td>
+                    <td width=180>
+                        Teleportar (escape/unstuck)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button action="bypass autofarm macro set LOGOUT 0" width=14 height=14 back=L2UI.control.checkBox_%LOGOUT% fore=L2UI.control.checkBox_%LOGOUT%>
+                    </td>
+                    <td>
+                        Desconectar (fechar o jogo)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button action="bypass autofarm macro %item_bypass%" width=14 height=14 back=L2UI.control.checkBox_%ITEM% fore=L2UI.control.checkBox_%ITEM%>
+                    </td>
+                    <td>
+                        Usar item %item_name%
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button action="bypass autofarm macro %skill_bypass%" width=14 height=14 back=L2UI.control.checkBox_%SKILL% fore=L2UI.control.checkBox_%SKILL%>
+                    </td>
+                    <td>
+                        Usar skill %skill_name%
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<br>
+<center><a action="bypass autofarm index">Voltar</a></center>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<html>
+<body>
+<br>
+<table cellspacing="-2">
+    <tr>
+        <td><button value="Aberto" action="bypass autofarm list_areas OPEN" width=74 height=24 back="L2UI_CH3.summon_tab2_over" fore="L2UI_CH3.summon_tab2"></td>
+        <td><button value="Zonas" action="bypass autofarm list_areas ZONA" width=74 height=24 back="L2UI_CH3.summon_tab1" fore="L2UI_CH3.summon_tab1"></td>
+        <td><button value="Rotas" action="bypass autofarm list_areas ROTA" width=74 height=24 back="L2UI_CH3.summon_tab2_over" fore="L2UI_CH3.summon_tab2"></td>
+        <td><button value="Opções" action="bypass autofarm options" width=74 height=24 back="L2UI_CH3.summon_tab2_over" fore="L2UI_CH3.summon_tab2"></td>
+    </tr>
+</table>
+<center>
+<br>
+%msg%
+<table >
+    %list%
+</table>
+<br>
+<table>
+    <tr>
+        <td>
+            <edit var="Name" width=100 height=12 length=12>
+        </td>
+        <td>
+            <button value="Criar" action="bypass autofarm zb new ZONA $Name" width=75 height=21 back="L2UI_ch3.Btn1_normalOn" fore="L2UI_ch3.Btn1_normal">
+        </td>
+    </tr>
+</table>
+<br>
+<table>
+    <tr>
+        <td width=40>
+            <a action="bypass autofarm index">Voltar</a>
+        </td>
+        <td width=80>
+            <a action="bypass autofarm clearpreview">Limpar preview</a>
+        </td>
+    </tr>
+</table>
+<center>
+</body>
+</html>
