@@ -4,17 +4,17 @@ configure() {
 
 # Loginserver
 LSDBHOST='localhost'
-LSDB='acis'
+LSDB='L2jToren'
 LSUSER='root'
 LSPASS=''
 
 # Gameserver
 GSDBHOST='localhost'
-GSDB='acis'
+GSDB='L2jToren'
 GSUSER='root'
 GSPASS=''
 
-echo "                        aCis database installation"
+echo "                        L2jToren database installation"
 echo "                        __________________________"
 echo ""
 

@@ -1005,7 +1005,7 @@ public final class Config
 		ACCEPT_ALTERNATE_ID = server.getProperty("AcceptAlternateID", true);
 		USE_BLOWFISH_CIPHER = server.getProperty("UseBlowfishCipher", true);
 		
-		DATABASE_URL = server.getProperty("URL", "jdbc:mariadb://localhost/acis");
+		DATABASE_URL = server.getProperty("URL", "jdbc:mariadb://localhost/L2jToren");
 		DATABASE_LOGIN = server.getProperty("Login", "root");
 		DATABASE_PASSWORD = server.getProperty("Password", "");
 		
@@ -1132,7 +1132,7 @@ public final class Config
 		ACCEPT_NEW_GAMESERVER = server.getProperty("AcceptNewGameServer", false);
 		SHOW_LICENCE = server.getProperty("ShowLicence", true);
 		
-		DATABASE_URL = server.getProperty("URL", "jdbc:mariadb://localhost/acis");
+		DATABASE_URL = server.getProperty("URL", "jdbc:mariadb://localhost:3306/L2jToren");
 		DATABASE_LOGIN = server.getProperty("Login", "root");
 		DATABASE_PASSWORD = server.getProperty("Password", "");
 		

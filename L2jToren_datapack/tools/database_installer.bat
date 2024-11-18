@@ -9,13 +9,13 @@ set mysqlBinPath=C:\Program Files\MariaDB 10.9\bin
 REM LOGINSERVER
 set LSUSER=root
 set LSPASS=
-set LSDB=acis
+set LSDB=L2jToren
 set LSHOST=localhost
 
 REM GAMESERVER
 set GSUSER=root
 set GSPASS=
-set GSDB=acis
+set GSDB=L2jToren
 set GSHOST=localhost
 REM ############################################
 
@@ -23,7 +23,7 @@ set mysqldumpPath="%mysqlBinPath%\mysqldump"
 set mysqlPath="%mysqlBinPath%\mysql"
 
 echo.
-echo.                        aCis database installation
+echo.                        L2jToren database installation
 echo.                        __________________________
 echo.
 echo OPTIONS : (f) full install, it will destroy all (need validation).

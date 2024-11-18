@@ -1,5 +1,5 @@
 @echo off
-title aCis gameserver console
+title L2jToren gameserver console
 :start
 REM -------------------------------------
 REM Default parameters for a basic server.

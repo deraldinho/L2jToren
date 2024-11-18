@@ -212,7 +212,7 @@ public class AutoFarmRoute extends AutoFarmArea
 		return result;
 	}
 	
-	// aCis < 409
+	// L2jToren < 409
 //	@SuppressWarnings("unchecked")
 //	private final <A> List<A> getKnownTypeInRadius(Class<A> type, int radius)
 //	{
