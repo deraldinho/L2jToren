@@ -4,7 +4,7 @@
 
 ## Descrição
 
-O L2jToren é um servidor de Lineage II baseado na engine L2jMobius. Nosso objetivo é criar um servidor divertido e estável, com uma comunidade ativa e uma experiência de jogo enriquecedora.
+O L2jToren é um servidor de Lineage II baseado na engine L2jaCis 409. Nosso objetivo é criar um servidor divertido e estável, com uma comunidade ativa e uma experiência de jogo enriquecedora.
 
 ## Índice
 
