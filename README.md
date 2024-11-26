@@ -23,7 +23,7 @@ Antes de começar, certifique-se de ter os seguintes requisitos instalados no se
 - **Java Development Kit (JDK)**: Versão 11 ou superior.
 - **MySQL**: Versão 5.7 ou superior.
 - **Git**: Para clonar o repositório.
-- **Maven**: Para compilar o projeto.
+- **ANT**: Para compilar o projeto.
 
 ## Instalação
 
@@ -37,7 +37,7 @@ Siga os passos abaixo para instalar e configurar o servidor L2jToren:
 
 Instale as Dependências
 
-Certifique-se de ter o Maven instalado e execute:
+Certifique-se de ter o ANT instalado e execute:
 
 mvn clean install
 Configure o Banco de Dados
