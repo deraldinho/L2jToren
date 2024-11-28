@@ -1114,6 +1114,7 @@ public class Npc extends Creature
 	 */
 	public int getExpReward()
 	{
+
 		return (int) (getTemplate().getRewardExp() * Config.RATE_XP);
 	}
 	

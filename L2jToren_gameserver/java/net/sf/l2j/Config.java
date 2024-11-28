@@ -363,6 +363,18 @@ public final class Config
 	/** Buffs */
 	public static boolean STORE_SKILL_COOLTIME;
 	public static int MAX_BUFFS_AMOUNT;
+
+	public static int MAX_VIP_LEVEL;
+	public static String[] VIP_EXPERIENCE_NEEDED_FOR_LEVEL;
+	public static boolean VIP_COLOR_ENABLED;
+	public static String VIP_NAME_COLOR;
+	public static String VIP_TITLE_COLOR;
+	public static double VIP_EXP_RATE;
+	public static double VIP_SP_RATE;
+	public static double VIP_CURRENCY_RATE;
+	public static double VIP_DROP_RATE;
+	public static double VIP_SPOIL_RATE;
+
 	
 	// --------------------------------------------------
 	// Sieges
@@ -1182,6 +1194,29 @@ public final class Config
 		BANKING_SYSTEM_ADENA = VoincedCommand.getProperty("BankingAdenaCount", 500000000);
 	}
 
+	/** Load do da configs do VIP*/
+	public static final void loadVip()
+	{
+		LOGGER.info("Loading loginserver configuration files.");
+
+		loadEngineVip();
+	}
+	public static final void loadEngineVip()
+	{
+		final ExProperties enGineVip = initProperties("PLAYERS_FILE");
+
+		MAX_VIP_LEVEL = enGineVip.getProperty("MaxVipLevel", 5);
+		VIP_EXPERIENCE_NEEDED_FOR_LEVEL = enGineVip.getProperty("vipExperienceNeededForLevel").split(",");
+		VIP_COLOR_ENABLED = enGineVip.getProperty("VIPColorEnabled", false);
+		VIP_NAME_COLOR = enGineVip.getProperty("VIPNameColor", "000000");
+		VIP_TITLE_COLOR = enGineVip.getProperty("VIPTitleColor", "000000");
+		VIP_EXP_RATE = enGineVip.getProperty("VIPXpRate", 1.5);
+		VIP_SP_RATE = enGineVip.getProperty("VIPSpRate", 1.5);
+		VIP_CURRENCY_RATE = enGineVip.getProperty("VIPCurrencyRate", 1.5);
+		VIP_DROP_RATE = enGineVip.getProperty("VIPDropRate", 1.5);
+		VIP_SPOIL_RATE = enGineVip.getProperty("VIPSpoolRate", 1.5);
+	}
+
 	public static final void loadGameServer()
 	{
 		LOGGER.info("Loading gameserver configuration files.");
@@ -1215,6 +1250,9 @@ public final class Config
 
 		//Load VoicedCommand
 		loadVoicedCommand();
+
+		//load enGine Vip
+		loadVip();
 	}
 	
 	public static final void loadLoginServer()

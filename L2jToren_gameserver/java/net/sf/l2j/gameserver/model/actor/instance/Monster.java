@@ -398,10 +398,17 @@ public class Monster extends Attackable
 	 */
 	private int[] calculateExpAndSp(int diff, double damage, double totalDamage)
 	{
+
 		// Calculate damage ratio.
 		double xp = getExpReward() * damage / totalDamage;
 		double sp = getSpReward() * damage / totalDamage;
-		
+
+		// Calculate Vip Raio
+		if (getActingPlayer().isVip()){
+			xp *= Config.VIP_EXP_RATE;
+			sp *= Config.VIP_SP_RATE;
+		}
+
 		// Calculate level ratio.
 		if (diff > 5)
 		{

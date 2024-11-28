@@ -221,6 +221,8 @@ import net.sf.l2j.gameserver.taskmanager.PvpFlagTaskManager;
 import net.sf.l2j.gameserver.taskmanager.ShadowItemTaskManager;
 import net.sf.l2j.gameserver.taskmanager.WaterTaskManager;
 
+import static net.sf.l2j.Config.VIP_EXPERIENCE_NEEDED_FOR_LEVEL;
+
 /**
  * This class represents a player in the world.<br>
  * There is always a client-thread connected to this (except if a player-store is activated upon logout).
@@ -236,8 +238,8 @@ public final class Player extends Playable
 	private static final String RESTORE_SKILL_SAVE = "SELECT skill_id,skill_level,effect_count,effect_cur_time, reuse_delay, systime, restore_type FROM character_skills_save WHERE char_obj_id=? AND class_index=? ORDER BY buff_index ASC";
 	private static final String DELETE_SKILL_SAVE = "DELETE FROM character_skills_save WHERE char_obj_id=? AND class_index=?";
 	
-	private static final String INSERT_CHARACTER = "INSERT INTO characters (account_name,obj_Id,char_name,level,maxHp,curHp,maxCp,curCp,maxMp,curMp,face,hairStyle,hairColor,sex,exp,sp,race,classid,base_class,title,accesslevel) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-	private static final String UPDATE_CHARACTER = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,accesslevel=?,online=?,isin7sdungeon=?,wantspeace=?,base_class=?,onlinetime=?,punish_level=?,punish_timer=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,varka_ketra_ally=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=? WHERE obj_id=?";
+	private static final String INSERT_CHARACTER = "INSERT INTO characters (account_name,obj_Id,char_name,level,maxHp,curHp,maxCp,curCp,maxMp,curMp,face,hairStyle,hairColor,sex,exp,sp,race,classid,base_class,title,accesslevel,level_Vip, vip_Experience) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String UPDATE_CHARACTER = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,accesslevel=?,level_Vip=?, vip_Experience=?,online=?,isin7sdungeon=?,wantspeace=?,base_class=?,onlinetime=?,punish_level=?,punish_timer=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,varka_ketra_ally=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=? WHERE obj_id=?";
 	private static final String RESTORE_CHARACTER = "SELECT * FROM characters WHERE obj_id=?";
 	
 	private static final String RESTORE_CHAR_SUBCLASSES = "SELECT class_id,exp,sp,level,class_index FROM character_subclasses WHERE char_obj_id=? ORDER BY class_index ASC";
@@ -254,7 +256,7 @@ public final class Player extends Playable
 	private static final String UPDATE_CHAR_RECOM_LEFT = "UPDATE characters SET rec_left=? WHERE obj_Id=?";
 	
 	private static final String UPDATE_NOBLESS = "UPDATE characters SET nobless=? WHERE obj_Id=?";
-	
+
 	public static final int REQUEST_TIMEOUT = 15;
 	
 	private static final Comparator<GeneralSkillNode> COMPARE_SKILLS_BY_MIN_LVL = Comparator.comparing(GeneralSkillNode::getMinLvl);
@@ -355,7 +357,11 @@ public final class Player extends Playable
 	
 	private boolean _isNoble;
 	private boolean _isHero;
-	
+
+	/** Variaveis Sistema de VIP character */
+	private int _vipLevel;
+	private long _vipExperience;
+
 	private Folk _currentFolk;
 	
 	private final PlayerMemo _memos = new PlayerMemo(getObjectId());
@@ -560,6 +566,8 @@ public final class Player extends Playable
 			ps.setInt(19, player.getBaseClass());
 			ps.setString(20, player.getTitle());
 			ps.setInt(21, player.getAccessLevel().getLevel());
+			ps.setInt(22, player.getVipLevel());
+			ps.setLong(23, player.getVipExperience());
 			ps.executeUpdate();
 		}
 		catch (Exception e)
@@ -4094,6 +4102,8 @@ public final class Player extends Playable
 					player.setDeleteTimer(rs.getLong("deletetime"));
 					player.setTitle(rs.getString("title"));
 					player.setAccessLevel(rs.getInt("accesslevel"));
+					player.setVipLevel(rs.getInt("level_Vip"));
+					player.setvipExperience(rs.getInt("vip_Experience"));
 					player.setUptime(System.currentTimeMillis());
 					player.setRecomHave(rs.getInt("rec_have"));
 					player.setRecomLeft(rs.getInt("rec_left"));
@@ -4337,30 +4347,32 @@ public final class Player extends Playable
 			ps.setLong(25, getDeleteTimer());
 			ps.setString(26, getTitle());
 			ps.setInt(27, getAccessLevel().getLevel());
-			ps.setInt(28, isOnlineInt());
-			ps.setInt(29, isIn7sDungeon() ? 1 : 0);
-			ps.setInt(30, wantsPeace() ? 1 : 0);
-			ps.setInt(31, getBaseClass());
+			ps.setInt(28, getVipLevel());
+			ps.setLong(29, getVipExperience());
+			ps.setInt(30, isOnlineInt());
+			ps.setInt(31, isIn7sDungeon() ? 1 : 0);
+			ps.setInt(32, wantsPeace() ? 1 : 0);
+			ps.setInt(33, getBaseClass());
 			
 			long totalOnlineTime = _onlineTime;
 			if (_onlineBeginTime > 0)
 				totalOnlineTime += (System.currentTimeMillis() - _onlineBeginTime) / 1000;
 			
-			ps.setLong(32, totalOnlineTime);
-			ps.setInt(33, _punishment.getType().ordinal());
-			ps.setLong(34, _punishment.getTimer());
-			ps.setInt(35, isNoble() ? 1 : 0);
-			ps.setLong(36, getPowerGrade());
-			ps.setInt(37, getPledgeType());
-			ps.setInt(38, getLvlJoinedAcademy());
-			ps.setLong(39, getApprentice());
-			ps.setLong(40, getSponsor());
-			ps.setInt(41, getAllianceWithVarkaKetra());
-			ps.setLong(42, getClanJoinExpiryTime());
-			ps.setLong(43, getClanCreateExpiryTime());
-			ps.setString(44, getName());
-			ps.setLong(45, getDeathPenaltyBuffLevel());
-			ps.setInt(46, getObjectId());
+			ps.setLong(34, totalOnlineTime);
+			ps.setInt(35, _punishment.getType().ordinal());
+			ps.setLong(36, _punishment.getTimer());
+			ps.setInt(37, isNoble() ? 1 : 0);
+			ps.setLong(38, getPowerGrade());
+			ps.setInt(39, getPledgeType());
+			ps.setInt(40, getLvlJoinedAcademy());
+			ps.setLong(41, getApprentice());
+			ps.setLong(42, getSponsor());
+			ps.setInt(43, getAllianceWithVarkaKetra());
+			ps.setLong(44, getClanJoinExpiryTime());
+			ps.setLong(45, getClanCreateExpiryTime());
+			ps.setString(46, getName());
+			ps.setLong(47, getDeathPenaltyBuffLevel());
+			ps.setInt(48, getObjectId());
 			
 			ps.execute();
 		}
@@ -5651,7 +5663,36 @@ public final class Player extends Playable
 			}
 		}
 	}
-	
+
+	/** Sistema de VIP character */
+	public int getVipLevel()
+	{
+		return _vipLevel;
+	}
+
+	public void setVipLevel(int vipLevel)
+	{
+		_vipLevel = vipLevel;
+	}
+
+	public long getVipExperience()
+	{
+		return _vipExperience;
+	}
+
+	public void setvipExperience(int vipExperience)
+	{
+		_vipExperience = vipExperience;
+	}
+
+	public boolean isVip(){
+		if (_vipLevel > 0 && _vipExperience >= 0)
+		{
+			return true;
+		}
+		return false;
+	}
+	/** VIP FIM */
 	public void setLvlJoinedAcademy(int lvl)
 	{
 		_lvlJoinedAcademy = lvl;
