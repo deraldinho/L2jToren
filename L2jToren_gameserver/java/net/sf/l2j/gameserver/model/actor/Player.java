@@ -44,13 +44,7 @@ import net.sf.l2j.gameserver.data.manager.SevenSignsManager;
 import net.sf.l2j.gameserver.data.manager.ZoneManager;
 import net.sf.l2j.gameserver.data.sql.ClanTable;
 import net.sf.l2j.gameserver.data.sql.PlayerInfoTable;
-import net.sf.l2j.gameserver.data.xml.AdminData;
-import net.sf.l2j.gameserver.data.xml.ItemData;
-import net.sf.l2j.gameserver.data.xml.NpcData;
-import net.sf.l2j.gameserver.data.xml.PlayerData;
-import net.sf.l2j.gameserver.data.xml.PlayerLevelData;
-import net.sf.l2j.gameserver.data.xml.RestartPointData;
-import net.sf.l2j.gameserver.data.xml.ScriptData;
+import net.sf.l2j.gameserver.data.xml.*;
 import net.sf.l2j.gameserver.enums.AiEventType;
 import net.sf.l2j.gameserver.enums.CabalType;
 import net.sf.l2j.gameserver.enums.GaugeColor;
@@ -220,6 +214,7 @@ import net.sf.l2j.gameserver.taskmanager.GameTimeTaskManager;
 import net.sf.l2j.gameserver.taskmanager.PvpFlagTaskManager;
 import net.sf.l2j.gameserver.taskmanager.ShadowItemTaskManager;
 import net.sf.l2j.gameserver.taskmanager.WaterTaskManager;
+import net.sf.l2j.gameserver.vip.Vip;
 
 /**
  * This class represents a player in the world.<br>
@@ -392,6 +387,8 @@ public final class Player extends Playable
 	private ScheduledFuture<?> _chargeTask;
 	
 	private AccessLevel _accessLevel;
+
+	private Vip _vip;
 	
 	private Location _enterWorld;
 	private final Map<String, ExServerPrimitive> _debug = new HashMap<>();
@@ -528,6 +525,9 @@ public final class Player extends Playable
 		
 		// Set access level
 		player.setAccessLevel(Config.DEFAULT_ACCESS_LEVEL);
+
+		// Set Access Level
+		player.setVip(Config.DEFAULT_VIP_LEVEL);
 		
 		// Cache few informations into CharNameTable.
 		PlayerInfoTable.getInstance().addPlayer(objectId, accountName, name, player.getAccessLevel().getLevel());
@@ -3953,7 +3953,96 @@ public final class Player extends Playable
 	{
 		return _accessLevel;
 	}
-	
+
+    /** Vip system */
+	public void setVip(int level){
+
+		Vip vip = VipData.getInstance().getVip(level);
+		if (vip == null){
+			LOGGER.warn("Um nível VIP inválido {} foi concedido para {}, portanto, ele foi redefinido.", vip, toString());
+			vip = VipData.getInstance().getVip(0);
+		}
+
+
+		_vip = vip;
+
+		if (_vip.getVipLevel() > 0){
+			LOGGER.info("{} entrou com Vip.", getName());
+			sendMessage(getName()+" VIP entrou no jogo");
+		}
+	}
+
+	public void restoreVip() {
+		Vip restoredVip = Vip.restoreVip(getObjectId());
+		if (restoredVip != null) {
+			_vip = restoredVip;
+			setVip(restoredVip.getVipLevel()); // Chamar setVip para aplicar os benefícios
+			LOGGER.info("VIP do jogador {} restaurado com sucesso.", getName());
+		} else {
+			LOGGER.warn("Falha ao restaurar VIP para o jogador {}.", getName());
+		}
+	}
+
+
+	public Vip getVip(){
+		return _vip;
+	}
+
+
+	public boolean isVip() {
+		return _vip != null && _vip.getVipLevel() > 0;
+	}
+
+	public long getVipTimeRemaining() {
+		if (_vip == null) {
+			return 0;
+		}
+		long currentTime = System.currentTimeMillis() / 1000L; // Tempo atual em segundos
+		return Math.max(0, _vip.getVipTime() - currentTime);
+	}
+
+	public void addVipExp(long exp) {
+		if (_vip != null) {
+			_vip.addVipExp(exp);
+		}
+	}
+
+
+	public void incrementVipLevel() {
+		if (_vip != null) {
+			_vip.setVipLevel(_vip.getVipLevel() + 1);
+		}
+	}
+
+	public void decrementVipLevel() {
+		if (_vip != null) {
+			_vip.setVipLevel(Math.max(0, _vip.getVipLevel() - 1));
+		}
+	}
+
+	public void addVipTime(long additionalTime) {
+		if (_vip != null) {
+			_vip.setVipTime(_vip.getVipTime() + additionalTime);
+		}
+	}
+
+	public boolean isVipTimeExpired() {
+		if (_vip == null) {
+			return true;
+		}
+		long currentTime = System.currentTimeMillis() / 1000L; // Tempo atual em segundos
+		return _vip.getVipTime() <= currentTime;
+	}
+
+	public void renewVip(long renewalTime) {
+		if (_vip != null) {
+			long currentTime = System.currentTimeMillis() / 1000L; // Tempo atual em segundos
+			_vip.setVipTime(currentTime + renewalTime);
+		}
+	}
+
+	/** Vip Termino */
+
 	public final void setEnterWorldLoc(int x, int y, int z)
 	{
 		_enterWorld = new Location(x, y, z);
@@ -4049,7 +4138,8 @@ public final class Player extends Playable
 			PreparedStatement ps = con.prepareStatement(RESTORE_CHARACTER))
 		{
 			ps.setInt(1, objectId);
-			
+
+
 			try (ResultSet rs = ps.executeQuery())
 			{
 				while (rs.next())
@@ -4177,7 +4267,9 @@ public final class Player extends Playable
 						player.setIsDead(true);
 						player.getStatus().stopHpMpRegeneration();
 					}
-					
+
+
+
 					World.getInstance().addPlayer(player);
 					
 					// Retrieve the name and ID of the other characters assigned to this account.
@@ -4200,7 +4292,10 @@ public final class Player extends Playable
 		{
 			LOGGER.error("Couldn't restore player data.", e);
 		}
-		
+
+		// Chamar restoreVip para restaurar o status VIP do jogador
+		player.restoreVip();
+
 		return player;
 	}
 	
@@ -4278,6 +4373,8 @@ public final class Player extends Playable
 	 */
 	public synchronized void store(boolean storeActiveEffects)
 	{
+		//chamada para salvar os dados Vip
+		_vip.storeVipData();
 		storeCharBase();
 		storeCharSub();
 		storeEffect(storeActiveEffects);

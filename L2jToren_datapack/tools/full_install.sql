@@ -60,3 +60,4 @@ DROP TABLE IF EXISTS seven_signs;
 DROP TABLE IF EXISTS seven_signs_festival;
 DROP TABLE IF EXISTS seven_signs_status;
 DROP TABLE IF EXISTS siege_clans;
+DROP TABLE IF EXISTS vip_system;

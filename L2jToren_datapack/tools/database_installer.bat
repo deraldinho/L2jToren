@@ -118,6 +118,7 @@ echo Installing empty character-related tables.
 %mysqlPath% -h %GSHOST% -u %GSUSER% --password=%GSPASS% -D %GSDB% < ../sql/seven_signs_festival.sql
 %mysqlPath% -h %GSHOST% -u %GSUSER% --password=%GSPASS% -D %GSDB% < ../sql/seven_signs_status.sql
 %mysqlPath% -h %GSHOST% -u %GSUSER% --password=%GSPASS% -D %GSDB% < ../sql/siege_clans.sql
+%mysqlPath% -h %GSHOST% -u %GSUSER% --password=%GSPASS% -D %GSDB% < ../sql/vip_system.sql
 
 echo Done.
 echo.

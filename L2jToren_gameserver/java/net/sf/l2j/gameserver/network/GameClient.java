@@ -59,6 +59,7 @@ public final class GameClient extends MMOClient<MMOConnection<GameClient>> imple
 	private static final String DELETE_CHAR_AUGMENTS = "DELETE FROM augmentations WHERE item_oid IN (SELECT object_id FROM items WHERE items.owner_id=?)";
 	private static final String DELETE_CHAR_ITEMS = "DELETE FROM items WHERE owner_id=?";
 	private static final String DELETE_CHAR_RBP = "DELETE FROM character_raid_points WHERE char_id=?";
+	private static final String DELETE_CHAR_VIP = "DELETE FROM vip_system WHERE char_id=?";
 	private static final String DELETE_CHAR = "DELETE FROM characters WHERE obj_Id=?";
 	
 	public enum GameClientState
@@ -512,6 +513,11 @@ public final class GameClient extends MMOClient<MMOConnection<GameClient>> imple
 			
 			try (PreparedStatement ps = con.prepareStatement(DELETE_CHAR_RBP))
 			{
+				ps.setInt(1, objectId);
+				ps.execute();
+			}
+
+			try(PreparedStatement ps = con.prepareStatement(DELETE_CHAR_VIP)){
 				ps.setInt(1, objectId);
 				ps.execute();
 			}

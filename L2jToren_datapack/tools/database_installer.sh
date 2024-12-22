@@ -138,6 +138,7 @@ $MYG < ../sql/seven_signs_festival.sql &> /dev/null
 $MYG < ../sql/seven_signs_status.sql &> /dev/null
 $MYG < ../sql/siege_clans.sql &> /dev/null
 $MYG < ../sql/spawn_data.sql &> /dev/null
+$MYG < ../sql/vip_system.sql &> /dev/null
 echo ""
 echo "Was fast, isn't it ?"
 }
