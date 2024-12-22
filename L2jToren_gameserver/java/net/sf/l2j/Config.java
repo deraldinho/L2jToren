@@ -42,6 +42,7 @@ public final class Config
 	private static final String SIEGE_FILE = "./config/siege.properties";
 	public static final String AUTOFARM_FILE = "./config/autofarm.properties";
 	public static final String VoicedCommand_FILE = "./config/VoicedCommand.properties";
+	public static final String VIP_FILE = "./config/vip.properties";
 	
 	// --------------------------------------------------
 	// Clans settings
@@ -536,8 +537,11 @@ public final class Config
 	public static int BANKING_SYSTEM_GOLDBAR;
 	public static IntIntHolder[] BANKING_SYSTEM_ITEM;
 
-
-
+	/** Vip System */
+	public static boolean NEW_CHAR_VIP;
+	public static int DEFAULT_VIP_LEVEL;
+	public static long DEFAULT_VIP_EXP;
+	public static long DEFAULT_VIP_TIME;
 
 	// --------------------------------------------------
 	// Those "hidden" settings haven't configs to avoid admins to fuck their server
@@ -1182,6 +1186,16 @@ public final class Config
 		BANKING_SYSTEM_ADENA = VoincedCommand.getProperty("BankingAdenaCount", 500000000);
 	}
 
+	public static final void loadVipConfig(){
+
+		final ExProperties vip = initProperties(VIP_FILE);
+
+		NEW_CHAR_VIP = vip.getProperty("NEW_CHAR_VIP", false);
+		DEFAULT_VIP_LEVEL = vip.getProperty("DEFAULT_VIP_LEVEL", 0);
+		DEFAULT_VIP_EXP = vip.getProperty("DEFAULT_VIP_EXP", 0);
+		DEFAULT_VIP_TIME = vip.getProperty("DEFAULT_VIP_TIME", 604800);
+	}
+
 	public static final void loadGameServer()
 	{
 		LOGGER.info("Loading gameserver configuration files.");
@@ -1215,6 +1229,9 @@ public final class Config
 
 		//Load VoicedCommand
 		loadVoicedCommand();
+
+		//Loda Vip Config
+		loadVipConfig();
 	}
 	
 	public static final void loadLoginServer()
