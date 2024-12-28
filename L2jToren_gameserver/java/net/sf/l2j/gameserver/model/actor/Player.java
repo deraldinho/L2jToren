@@ -247,9 +247,14 @@ public final class Player extends Playable
 	private static final String ADD_CHAR_RECOM = "INSERT INTO character_recommends (char_id,target_id) VALUES (?,?)";
 	private static final String UPDATE_TARGET_RECOM_HAVE = "UPDATE characters SET rec_have=? WHERE obj_Id=?";
 	private static final String UPDATE_CHAR_RECOM_LEFT = "UPDATE characters SET rec_left=? WHERE obj_Id=?";
-	
+
+	private static final String ADD_CHAR_VIP = "INSERT INTO vip_system (char_id, vip_level, vip_exp, vip_time) VALUES (?, ?, ?, ?)";
+	private static final String UPDATE_CHAR_VIP = "UPDATE vip_system SET vip_level = ?, vip_exp = ?, vip_time = ? WHERE char_id = ?";
+	private static final String RESTORE_CHAR_VIP = "SELECT * FROM vip_system WHERE char_id = ?;";
+	private static final String DELETE_CHAR_VIP = "DELETE FROM vip_system WHERE char_id = ?";
+
 	private static final String UPDATE_NOBLESS = "UPDATE characters SET nobless=? WHERE obj_Id=?";
-	
+
 	public static final int REQUEST_TIMEOUT = 15;
 	
 	private static final Comparator<GeneralSkillNode> COMPARE_SKILLS_BY_MIN_LVL = Comparator.comparing(GeneralSkillNode::getMinLvl);
@@ -526,9 +531,9 @@ public final class Player extends Playable
 		// Set access level
 		player.setAccessLevel(Config.DEFAULT_ACCESS_LEVEL);
 
-		// Set Access Level
+		// Set Vip
 		player.setVip(Config.DEFAULT_VIP_LEVEL);
-		
+
 		// Cache few informations into CharNameTable.
 		PlayerInfoTable.getInstance().addPlayer(objectId, accountName, name, player.getAccessLevel().getLevel());
 		
@@ -560,14 +565,17 @@ public final class Player extends Playable
 			ps.setInt(19, player.getBaseClass());
 			ps.setString(20, player.getTitle());
 			ps.setInt(21, player.getAccessLevel().getLevel());
+
 			ps.executeUpdate();
+
+			player.createVip();
 		}
 		catch (Exception e)
 		{
 			LOGGER.error("Couldn't create player {} for {} account.", e, name, accountName);
 			return null;
 		}
-		
+
 		return player;
 	}
 	
@@ -2036,7 +2044,38 @@ public final class Player extends Playable
 		
 		return true;
 	}
-	
+
+	@Override
+	public ItemInstance checkItemManipulation(int objectId, int count)
+	{
+		// The item doesn't exist in World.
+		if (World.getInstance().getObject(objectId) == null)
+			return null;
+
+		// The item doesn't exist in inventory, or the owner isn't actual Player.
+		final ItemInstance item = getInventory().getItemByObjectId(objectId);
+		if (item == null || item.getOwnerId() != getObjectId())
+			return null;
+
+		// The count integrity is invalid.
+		if (count < 1 || (count > 1 && !item.isStackable()) || count > item.getCount())
+			return null;
+
+		// The summon item is linked to the Pet actually summoned/mounted.
+		if (_summon != null && _summon.getControlItemId() == objectId || _mountObjectId == objectId)
+			return null;
+
+		// The item is the active enchant item.
+		if (getActiveEnchantItem() != null && getActiveEnchantItem().getObjectId() == objectId)
+			return null;
+
+		// We cannot put a Weapon with Augmention in WH while casting (Possible Exploit)
+		if (item.isAugmented() && getCast().isCastingNow())
+			return null;
+
+		return item;
+	}
+
 	/**
 	 * @param objectId : The objectId of the {@link ItemInstance} to drop.
 	 * @param count : The amount to drop. If amount is superior or equal to {@link ItemInstance} quantity, the item is entirely removed.
@@ -2053,50 +2092,19 @@ public final class Player extends Playable
 		{
 			if (sendMessage)
 				sendPacket(SystemMessageId.NOT_ENOUGH_ITEMS);
-			
+
 			return null;
 		}
-		
+
 		item.dropMe(this, x, y, z);
-		
+
 		// Send message to client, if requested.
 		if (sendMessage)
 			sendPacket(SystemMessage.getSystemMessage(SystemMessageId.YOU_DROPPED_S1).addItemName(item));
-		
+
 		return item;
 	}
-	
-	@Override
-	public ItemInstance checkItemManipulation(int objectId, int count)
-	{
-		// The item doesn't exist in World.
-		if (World.getInstance().getObject(objectId) == null)
-			return null;
-		
-		// The item doesn't exist in inventory, or the owner isn't actual Player.
-		final ItemInstance item = getInventory().getItemByObjectId(objectId);
-		if (item == null || item.getOwnerId() != getObjectId())
-			return null;
-		
-		// The count integrity is invalid.
-		if (count < 1 || (count > 1 && !item.isStackable()) || count > item.getCount())
-			return null;
-		
-		// The summon item is linked to the Pet actually summoned/mounted.
-		if (_summon != null && _summon.getControlItemId() == objectId || _mountObjectId == objectId)
-			return null;
-		
-		// The item is the active enchant item.
-		if (getActiveEnchantItem() != null && getActiveEnchantItem().getObjectId() == objectId)
-			return null;
-		
-		// We cannot put a Weapon with Augmention in WH while casting (Possible Exploit)
-		if (item.isAugmented() && getCast().isCastingNow())
-			return null;
-		
-		return item;
-	}
-	
+
 	/**
 	 * @return True if this {@link Player} is under a spawn protection task, or false otherwise.
 	 */
@@ -2965,7 +2973,7 @@ public final class Player extends Playable
 				room.removeMember(this);
 		}
 	}
-	
+
 	@Override
 	public Summon getSummon()
 	{
@@ -3954,92 +3962,142 @@ public final class Player extends Playable
 		return _accessLevel;
 	}
 
-    /** Vip system */
-	public void setVip(int level){
+	/** VIP INICIO */
+	/**
+	 * Define o nível VIP do jogador e aplica os benefícios associados.
+	 * @param vip_level O nível VIP a ser atribuído ao jogador.
+	 */
+	public void setVip(int vip_level) {
+		// Obtém o objeto Vip associado ao nível fornecido
+		Vip vip = VipData.getInstance().getVip(vip_level);
 
-		Vip vip = VipData.getInstance().getVip(level);
-		if (vip == null){
-			LOGGER.warn("Um nível VIP inválido {} foi concedido para {}, portanto, ele foi redefinido.", vip, toString());
-			vip = VipData.getInstance().getVip(0);
+		// Verifica se o objeto Vip é nulo
+		if (vip == null) {
+			// Loga um aviso indicando que um nível VIP inválido foi atribuído e será redefinido
+			LOGGER.warn("Um nível VIP inválido {} foi atribuído ao jogador {}, portanto, foi redefinido.", vip_level, toString());
+
+			// Define o Vip para o nível padrão
+			vip = VipData.getInstance().getVip(Config.DEFAULT_VIP_LEVEL);
 		}
 
-
+		// Atribui o objeto Vip ao jogador
 		_vip = vip;
 
-		if (_vip.getVipLevel() > 0){
-			LOGGER.info("{} entrou com Vip.", getName());
-			sendMessage(getName()+" VIP entrou no jogo");
-		}
-	}
-
-	public void restoreVip() {
-		Vip restoredVip = Vip.restoreVip(getObjectId());
-		if (restoredVip != null) {
-			_vip = restoredVip;
-			setVip(restoredVip.getVipLevel()); // Chamar setVip para aplicar os benefícios
-			LOGGER.info("VIP do jogador {} restaurado com sucesso.", getName());
-		} else {
-			LOGGER.warn("Falha ao restaurar VIP para o jogador {}.", getName());
+		// Verifica se o nível VIP é maior que 0 e loga uma mensagem de sucesso
+		if (_vip.getVipLevel() > 0) {
+			LOGGER.info("Funcionou");
 		}
 	}
 
 
-	public Vip getVip(){
-		return _vip;
-	}
+	public boolean createVip() {
 
+		// Obtém o VIP padrão usando o nível 0
+		Vip vip = VipData.getInstance().getVip(0);
+		// Define os atributos do VIP com valores padrão
+		vip.setCharId(getObjectId());
+		vip.setVipLevel(Config.DEFAULT_VIP_LEVEL);
+		vip.setVipExp(Config.DEFAULT_VIP_EXP);
+		vip.setVipTime(Config.DEFAULT_VIP_TIME);
 
-	public boolean isVip() {
-		return _vip != null && _vip.getVipLevel() > 0;
-	}
-
-	public long getVipTimeRemaining() {
-		if (_vip == null) {
-			return 0;
-		}
-		long currentTime = System.currentTimeMillis() / 1000L; // Tempo atual em segundos
-		return Math.max(0, _vip.getVipTime() - currentTime);
-	}
-
-	public void addVipExp(long exp) {
-		if (_vip != null) {
-			_vip.addVipExp(exp);
-		}
-	}
-
-
-	public void incrementVipLevel() {
-		if (_vip != null) {
-			_vip.setVipLevel(_vip.getVipLevel() + 1);
-		}
-	}
-
-	public void decrementVipLevel() {
-		if (_vip != null) {
-			_vip.setVipLevel(Math.max(0, _vip.getVipLevel() - 1));
-		}
-	}
-
-	public void addVipTime(long additionalTime) {
-		if (_vip != null) {
-			_vip.setVipTime(_vip.getVipTime() + additionalTime);
-		}
-	}
-
-	public boolean isVipTimeExpired() {
-		if (_vip == null) {
+		// Usando try-with-resources para garantir que a conexão seja fechada adequadamente
+		try (Connection con = ConnectionPool.getConnection();
+			 PreparedStatement ps = con.prepareStatement(ADD_CHAR_VIP)) {
+			// Define os parâmetros da declaração preparada
+			ps.setInt(1, vip.getCharId());
+			ps.setInt(2, vip.getVipLevel());
+			ps.setLong(3, vip.getVipExp());
+			ps.setLong(4, vip.getVipTime());
+			// Executa a declaração SQL para inserir os dados VIP no banco de dados
+			ps.execute();
+			LOGGER.info("A criação do VIP foi um sucesso para charId: {}", vip.getCharId());
+			// Inicializa o objeto _vip após a criação bem-sucedida
+			_vip = vip;
 			return true;
+		} catch (Exception e) {
+			// Log de erro detalhado caso ocorra uma exceção SQL
+			LOGGER.error("Falha ao executar a query para criar VIP para charId: {}", vip.getCharId(), e);
+			return false;
 		}
-		long currentTime = System.currentTimeMillis() / 1000L; // Tempo atual em segundos
-		return _vip.getVipTime() <= currentTime;
 	}
 
-	public void renewVip(long renewalTime) {
-		if (_vip != null) {
-			long currentTime = System.currentTimeMillis() / 1000L; // Tempo atual em segundos
-			_vip.setVipTime(currentTime + renewalTime);
+
+
+
+	public static boolean restoreVip(Player player) {
+		// Usando try-with-resources para garantir que a conexão seja fechada adequadamente
+		try (Connection con = ConnectionPool.getConnection();
+			 PreparedStatement ps = con.prepareStatement(RESTORE_CHAR_VIP)) {
+
+			// Define o parâmetro da declaração preparada
+			ps.setInt(1, player.getObjectId());
+
+			// Executa a consulta e processa o ResultSet
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					// Recupera o objeto Vip com base no nível VIP do ResultSet
+					Vip vip = VipData.getInstance().getVip(rs.getInt("vip_level"));
+
+					// Define os atributos do VIP com os valores do ResultSet
+					vip.setCharId(rs.getInt("char_id"));
+					vip.setVipLevel(rs.getInt("vip_level"));
+					vip.setVipExp(rs.getLong("vip_exp"));
+					vip.setVipTime(rs.getLong("vip_time"));
+
+					// Atribui o objeto VIP ao jogador
+					player._vip = vip;
+
+					LOGGER.info("Vip restaurado com sucesso para charId: {}", vip.getCharId());
+				}
+			} catch (Exception e) {
+				// Log de erro detalhado caso ocorra uma exceção SQL
+				LOGGER.error("Erro ao processar o ResultSet para restaurar VIP", e);
+				return false;
+			}
+		} catch (Exception e) {
+			// Log de erro detalhado caso ocorra uma exceção SQL ao se conectar ou preparar a declaração
+			LOGGER.error("Falha ao restabelecer a conexão ou preparar a declaração para restaurar VIP", e);
+			return false;
+		}
+
+		return true;
+	}
+
+
+	public boolean updateVip() {
+		// Verifica se o objeto _vip do jogador é nulo
+		if (_vip == null) {
+			LOGGER.warn("Tentativa de atualização do VIP falhou: o jogador não possui dados VIP.");
+			return false;
+		}
+
+		// Usando try-with-resources para garantir que a conexão seja fechada adequadamente
+		try (Connection con = ConnectionPool.getConnection();
+			 PreparedStatement ps = con.prepareStatement(UPDATE_CHAR_VIP)) {
+
+			// Define os parâmetros da declaração preparada com os dados VIP do jogador
+			ps.setInt(1, _vip.getVipLevel());
+			ps.setLong(2, _vip.getVipExp());
+			ps.setLong(3, _vip.getVipTime());
+			ps.setInt(4, _vip.getCharId());
+
+			// Executa a declaração SQL para atualizar os dados VIP no banco de dados
+			int rowsUpdated = ps.executeUpdate();
+			if (rowsUpdated > 0) {
+				LOGGER.info("Dados VIP atualizados com sucesso para charId: {}", _vip.getCharId());
+				return true;
+			} else {
+				LOGGER.warn("Nenhuma linha foi atualizada para charId: {}", _vip.getCharId());
+				return false;
+			}
+		} catch (Exception e) {
+			// Log de erro detalhado caso ocorra uma exceção SQL
+			LOGGER.error("Erro ao atualizar VIP para charId: " + _vip.getCharId(), e);
+			return false;
 		}
 	}
+
+
 
 	/** Vip Termino */
 
@@ -4205,7 +4263,7 @@ public final class Player extends Playable
 							if (subClass.getClassId() == activeClassId)
 								player._classIndex = subClass.getClassIndex();
 					}
-					
+
 					// Subclass in use but doesn't exist in DB - a possible subclass cheat has been attempted. Switching to base class.
 					if (player.getClassIndex() == 0 && activeClassId != player.getBaseClass())
 						player.setClassId(player.getBaseClass());
@@ -4268,20 +4326,42 @@ public final class Player extends Playable
 						player.getStatus().stopHpMpRegeneration();
 					}
 
+					try (PreparedStatement ps2 = con.prepareStatement(RESTORE_CHAR_VIP)) {
+						// Define o parâmetro da declaração preparada com o ID do objeto (personagem)
+						ps2.setInt(1, objectId);
+
+						// Executa a consulta e processa o ResultSet
+						try (ResultSet rs2 = ps2.executeQuery()) {
+							while (rs2.next()) {
+								// Define o nível VIP do jogador usando a função setVip
+								player.setVip(rs2.getInt("vip_level"));
+
+								// Define os atributos do VIP com os valores do ResultSet
+								player._vip.setCharId(rs2.getInt("char_id"));
+								player._vip.setVipLevel(rs2.getInt("vip_level"));
+								player._vip.setVipExp(rs2.getLong("vip_exp"));
+								player._vip.setVipTime(rs2.getLong("vip_time"));
+
+								// Loga uma mensagem indicando que o VIP foi restaurado com sucesso
+								LOGGER.info("Vip restaurado com sucesso para charId: {}:{}", player._vip.getCharId(), player.getName());
+							}
+						}
+					}
+
 
 
 					World.getInstance().addPlayer(player);
 					
 					// Retrieve the name and ID of the other characters assigned to this account.
-					try (PreparedStatement ps2 = con.prepareStatement("SELECT obj_Id, char_name FROM characters WHERE account_name=? AND obj_Id<>?"))
+					try (PreparedStatement ps3 = con.prepareStatement("SELECT obj_Id, char_name FROM characters WHERE account_name=? AND obj_Id<>?"))
 					{
-						ps2.setString(1, player._accountName);
-						ps2.setInt(2, objectId);
+						ps3.setString(1, player._accountName);
+						ps3.setInt(2, objectId);
 						
-						try (ResultSet rs2 = ps2.executeQuery())
+						try (ResultSet rs3 = ps3.executeQuery())
 						{
-							while (rs2.next())
-								player.getAccountChars().put(rs2.getInt("obj_Id"), rs2.getString("char_name"));
+							while (rs3.next())
+								player.getAccountChars().put(rs3.getInt("obj_Id"), rs3.getString("char_name"));
 						}
 					}
 					break;
@@ -4292,9 +4372,6 @@ public final class Player extends Playable
 		{
 			LOGGER.error("Couldn't restore player data.", e);
 		}
-
-		// Chamar restoreVip para restaurar o status VIP do jogador
-		player.restoreVip();
 
 		return player;
 	}
@@ -4365,6 +4442,7 @@ public final class Player extends Playable
 		
 		// Retrieve from the database all quest states and variables for this Player and add them to _quests.
 		_questList.restore();
+
 	}
 	
 	/**
@@ -4374,7 +4452,7 @@ public final class Player extends Playable
 	public synchronized void store(boolean storeActiveEffects)
 	{
 		//chamada para salvar os dados Vip
-		_vip.storeVipData();
+		updateVip();
 		storeCharBase();
 		storeCharSub();
 		storeEffect(storeActiveEffects);
