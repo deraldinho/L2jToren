@@ -60,13 +60,21 @@ public class VipData implements IXmlReader {
     }
 
     public Vip getVip(int level) {
+        // Recupera o objeto Vip associado ao nível fornecido
         Vip vip = _vips.get(level);
+
+        // Verifica se o objeto Vip foi encontrado
         if (vip == null) {
+            // Caso não seja encontrado, registra um aviso no log
             LOGGER.warn("Nível VIP {} não encontrado. Retornando nível VIP padrão.", level);
+
+            // Define o Vip padrão (nível 0)
             vip = _vips.get(0); // Assume que nível 0 é o nível VIP padrão
         }
+        // Retorna o objeto Vip correspondente ou o padrão
         return vip;
     }
+
 
     public long getRequiredExpForHighestVipLevel() {
         return _vips.get(_maxVipLevel).requiredExpToVipLevelUp();
