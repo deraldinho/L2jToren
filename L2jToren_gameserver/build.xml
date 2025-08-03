@@ -84,7 +84,7 @@
 	</target>
 
 	<target name="compile" depends="init" description="Compile the source.">
-		<javac srcdir="${src}" classpathref="classpath" destdir="${build.classes}" debug="true" debuglevel="lines,vars,source" includeantruntime="false" />
+		<javac srcdir="${src}" classpathref="classpath" destdir="${build.classes}" debug="true" debuglevel="lines,vars,source" includeantruntime="false" release="21" />
 	</target>
 	
 	<target name="init" depends="clean,checkRequirements" description="Create the output directories.">
@@ -101,8 +101,8 @@
 
 	<target name="checkRequirements" description="Check requirements.">
 		<echo message="Verification of your JDK version."/>
-		<available classname="java.util.stream.Stream" property="JDK21.present" />
-		<fail unless="JDK21.present" message="JDK21 is required, but your version is Java ${ant.java.version}. Install latest JDK." />
+		<available classname="java.lang.foreign.MemorySegment" property="JDK21.present" />
+		<fail unless="JDK21.present" message="JDK 21 is required, but your version is Java ${ant.java.version}. Install latest JDK." />
 	</target>
 	
 	<path id="classpath">

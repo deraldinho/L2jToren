@@ -3,6 +3,7 @@ package net.sf.l2j.loginserver.network;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.security.interfaces.RSAPrivateKey;
+import java.security.GeneralSecurityException;
 
 import net.sf.l2j.commons.logging.CLogger;
 import net.sf.l2j.commons.mmocore.MMOClient;
@@ -72,7 +73,7 @@ public final class LoginClient extends MMOClient<MMOConnection<LoginClient>>
 			}
 			return true;
 		}
-		catch (Exception e)
+		catch (GeneralSecurityException e)
 		{
 			LOGGER.error("Couldn't decrypt LoginClient packet.", e);
 			super.getConnection().close((SendablePacket<LoginClient>) null);
@@ -88,7 +89,7 @@ public final class LoginClient extends MMOClient<MMOConnection<LoginClient>>
 		{
 			size = _loginCrypt.encrypt(buf.array(), offset, size);
 		}
-		catch (Exception e)
+		catch (GeneralSecurityException e)
 		{
 			LOGGER.error("Couldn't encrypt LoginClient packet.", e);
 			return false;
@@ -111,7 +112,7 @@ public final class LoginClient extends MMOClient<MMOConnection<LoginClient>>
 	@Override
 	protected void onForcedDisconnection()
 	{
-		// Do nothing.
+		LOGGER.info("LoginClient was forced to disconnect.");
 	}
 	
 	public LoginClientState getState()

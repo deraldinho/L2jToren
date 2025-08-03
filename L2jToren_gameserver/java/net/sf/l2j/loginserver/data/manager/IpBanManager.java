@@ -12,7 +12,7 @@ import net.sf.l2j.commons.logging.CLogger;
 
 public class IpBanManager
 {
-	private static final CLogger LOGGER = new CLogger(GameServerManager.class.getName());
+	private static final CLogger LOGGER = new CLogger(IpBanManager.class.getName());
 	
 	private final Map<InetAddress, Long> _bannedIps = new ConcurrentHashMap<>();
 	
@@ -35,13 +35,13 @@ public class IpBanManager
 				{
 					_bannedIps.putIfAbsent(InetAddress.getByName(l), 0L);
 				}
-				catch (Exception e)
+				catch (UnknownHostException e)
 				{
-					LOGGER.error("Invalid ban address ({}).", l);
+					LOGGER.error("Invalid ban address ({}).", l, e);
 				}
 			});
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
 			LOGGER.error("Error while reading banned_ips.properties.", e);
 		}

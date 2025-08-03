@@ -90,7 +90,7 @@ public class Shutdown extends Thread
 			}
 			catch (Exception e)
 			{
-				// Silent catch.
+				LOGGER.error("Error while disconnecting players.", e);
 			}
 			
 			// Close communication with LoginServerThread.
@@ -100,7 +100,7 @@ public class Shutdown extends Thread
 			}
 			catch (Exception e)
 			{
-				// Silent catch.
+				LOGGER.error("Error while closing LoginServerThread communication.", e);
 			}
 			
 			// Save Festival of Darkness.
@@ -180,7 +180,7 @@ public class Shutdown extends Thread
 			}
 			catch (Exception e)
 			{
-				// Silent catch.
+				LOGGER.error("Error while sleeping during shutdown.", e);
 			}
 			
 			// Stop the ThreadPool.
@@ -192,17 +192,10 @@ public class Shutdown extends Thread
 			}
 			catch (Exception e)
 			{
-				// Silent catch.
+				LOGGER.error("Error while shutting down SelectorThread.", e);
 			}
 			
-			try
-			{
-				ConnectionPool.shutdown();
-			}
-			catch (Exception e)
-			{
-				// Silent catch.
-			}
+			
 			
 			Runtime.getRuntime().halt((SingletonHolder.INSTANCE._shutdownMode == GM_RESTART) ? 2 : 0);
 		}

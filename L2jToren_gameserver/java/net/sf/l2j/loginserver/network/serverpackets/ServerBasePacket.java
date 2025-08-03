@@ -4,8 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import net.sf.l2j.commons.logging.CLogger;
+
 public abstract class ServerBasePacket
 {
+	private static final CLogger LOGGER = new CLogger(ServerBasePacket.class.getName());
+	
 	ByteArrayOutputStream _bao;
 	
 	protected ServerBasePacket()
@@ -53,9 +57,9 @@ public abstract class ServerBasePacket
 			{
 				_bao.write(text.getBytes(StandardCharsets.UTF_16LE));
 			}
-			catch (Exception e)
+			catch (IOException e)
 			{
-				e.printStackTrace();
+				LOGGER.error("Error writing string to packet.", e);
 			}
 		}
 		
@@ -73,7 +77,7 @@ public abstract class ServerBasePacket
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace();
+				LOGGER.error("Error writing bytes to packet.", e);
 			}
 		}
 	}

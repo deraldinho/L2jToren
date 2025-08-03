@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import net.sf.l2j.commons.logging.CLogger;
 import net.sf.l2j.commons.mmocore.IAcceptFilter;
 import net.sf.l2j.commons.mmocore.IClientFactory;
 import net.sf.l2j.commons.mmocore.IMMOExecutor;
@@ -18,11 +19,13 @@ import net.sf.l2j.loginserver.network.serverpackets.Init;
 
 public class SelectorHelper implements IMMOExecutor<LoginClient>, IClientFactory<LoginClient>, IAcceptFilter
 {
+	private static final CLogger LOGGER = new CLogger(SelectorHelper.class.getName());
+	
 	private final ThreadPoolExecutor _generalPacketsThreadPool;
 	
 	private final IPv4Filter _ipv4filter;
 	
-	public SelectorHelper()
+	protected SelectorHelper()
 	{
 		_generalPacketsThreadPool = new ThreadPoolExecutor(4, 6, 15L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 		_ipv4filter = new IPv4Filter();
@@ -46,5 +49,21 @@ public class SelectorHelper implements IMMOExecutor<LoginClient>, IClientFactory
 	public void execute(ReceivablePacket<LoginClient> packet)
 	{
 		_generalPacketsThreadPool.execute(packet);
+	}
+	
+	public void shutdown()
+	{
+		LOGGER.info("Shutting down SelectorHelper ThreadPool...");
+		_generalPacketsThreadPool.shutdownNow();
+	}
+	
+	public static SelectorHelper getInstance()
+	{
+		return SingletonHolder.INSTANCE;
+	}
+	
+	private static class SingletonHolder
+	{
+		protected static final SelectorHelper INSTANCE = new SelectorHelper();
 	}
 }

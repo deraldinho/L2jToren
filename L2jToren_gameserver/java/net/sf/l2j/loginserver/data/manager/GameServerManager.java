@@ -75,7 +75,7 @@ public class GameServerManager implements IXmlReader
 			for (int i = 0; i < KEYS_SIZE; i++)
 				_keyPairs[i] = keyGen.genKeyPair();
 		}
-		catch (Exception e)
+				catch (GeneralSecurityException e)
 		{
 			LOGGER.error("Error loading RSA keys for Game Server communication.", e);
 		}
@@ -93,7 +93,7 @@ public class GameServerManager implements IXmlReader
 				_registeredServers.put(id, new GameServerInfo(id, stringToHex(rs.getString("hexid"))));
 			}
 		}
-		catch (Exception e)
+				catch (SQLException e)
 		{
 			LOGGER.error("Error loading registered gameservers.", e);
 		}
@@ -144,7 +144,7 @@ public class GameServerManager implements IXmlReader
 			ps.setString(3, hostName);
 			ps.executeUpdate();
 		}
-		catch (Exception e)
+		catch (SQLException e)
 		{
 			LOGGER.error("Error while saving gameserver data.", e);
 		}

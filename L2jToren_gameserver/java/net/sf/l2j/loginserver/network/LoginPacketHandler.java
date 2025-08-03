@@ -2,6 +2,7 @@ package net.sf.l2j.loginserver.network;
 
 import java.nio.ByteBuffer;
 
+import net.sf.l2j.commons.logging.CLogger;
 import net.sf.l2j.commons.mmocore.IPacketHandler;
 import net.sf.l2j.commons.mmocore.ReceivablePacket;
 
@@ -16,6 +17,7 @@ import net.sf.l2j.loginserver.network.clientpackets.RequestServerLogin;
  */
 public final class LoginPacketHandler implements IPacketHandler<LoginClient>
 {
+	private static final CLogger LOGGER = new CLogger(LoginPacketHandler.class.getName());
 	@Override
 	public ReceivablePacket<LoginClient> handlePacket(ByteBuffer buf, LoginClient client)
 	{
@@ -54,6 +56,6 @@ public final class LoginPacketHandler implements IPacketHandler<LoginClient>
 	
 	private static void debugOpcode(int opcode, LoginClientState state)
 	{
-		System.out.println("Unknown Opcode: " + opcode + " for state: " + state.name());
+		LOGGER.warn("Unknown Opcode: {} for state: {}.", opcode, state.name());
 	}
 }

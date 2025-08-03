@@ -68,7 +68,8 @@ public class GameServerThread extends Thread
 		}
 		catch (IOException e)
 		{
-			LOGGER.debug("Couldn't process gameserver input stream.", e);
+			LOGGER.error("Couldn't obtain gameserver input/output streams.", e);
+			// No System.exit(1) here, as it's a thread and other threads might be running.
 		}
 		
 		final KeyPair pair = GameServerManager.getInstance().getKeyPair();
@@ -127,7 +128,11 @@ public class GameServerThread extends Thread
 				
 				checksumOk = NewCrypt.verifyChecksum(data);
 				if (!checksumOk)
+				{
+					LOGGER.warn("Checksum failed for gameserver {}. Closing connection.", _connectionIp);
+					forceClose(LoginServerFail.REASON_BAD_CHECKSUM);
 					return;
+				}
 				
 				int packetType = data[0] & 0xff;
 				switch (packetType)
@@ -388,9 +393,9 @@ public class GameServerThread extends Thread
 				_out.flush();
 			}
 		}
-		catch (IOException e)
+				catch (IOException e)
 		{
-			LOGGER.error("Exception while sending packet {}.", sl.getClass().getSimpleName());
+			LOGGER.error("Exception while sending packet {}.", e, sl.getClass().getSimpleName());
 		}
 	}
 	

@@ -2,14 +2,14 @@ package net.sf.l2j.loginserver;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.sf.l2j.Config;
 
 public class GameServerListener extends FloodProtectedListener
 {
-	private static List<GameServerThread> _gameServers = new ArrayList<>();
+	private static List<GameServerThread> _gameServers = new CopyOnWriteArrayList<>();
 	
 	public GameServerListener() throws IOException
 	{

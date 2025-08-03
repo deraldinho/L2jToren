@@ -131,6 +131,11 @@ public class GameServer
 		{
 			LogManager.getLogManager().readConfiguration(is);
 		}
+		catch (IOException e)
+		{
+			LOGGER.error("Failed to load logging configuration.", e);
+			System.exit(1);
+		}
 		
 		StringUtil.printSection("Config");
 		Config.loadGameServer();
@@ -304,7 +309,7 @@ public class GameServer
 			{
 				bindAddress = InetAddress.getByName(Config.GAMESERVER_HOSTNAME);
 			}
-			catch (Exception e)
+			catch (UnknownHostException e)
 			{
 				LOGGER.error("The GameServer bind address is invalid, using all available IPs.", e);
 			}
@@ -314,11 +319,11 @@ public class GameServer
 		{
 			_selectorThread.openServerSocket(bindAddress, Config.GAMESERVER_PORT);
 		}
-		catch (Exception e)
-		{
-			LOGGER.error("Failed to open server socket.", e);
-			System.exit(1);
-		}
+					catch (IOException e)
+			{
+				LOGGER.error("Failed to open server socket.", e);
+				System.exit(1);
+			}
 		_selectorThread.start();
 	}
 	

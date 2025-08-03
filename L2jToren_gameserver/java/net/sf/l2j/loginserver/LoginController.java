@@ -156,6 +156,9 @@ public class LoginController
 				return;
 			}
 			
+			// Clear all failed login attempts.
+			_failedAttempts.remove(addr);
+			
 			LOGGER.info("Auto created account '{}'.", login);
 		}
 		else
@@ -199,14 +202,11 @@ public class LoginController
 		}
 		
 		// Account is already set on gs, close the previous client.
-		if (_clients.putIfAbsent(login, client) != null)
+		final LoginClient oldClient = _clients.putIfAbsent(login, client);
+		if (oldClient != null)
 		{
-			final LoginClient oldClient = getAuthedClient(login);
-			if (oldClient != null)
-			{
-				oldClient.close(LoginFail.REASON_ACCOUNT_IN_USE);
-				removeAuthedLoginClient(login);
-			}
+			oldClient.close(LoginFail.REASON_ACCOUNT_IN_USE);
+			removeAuthedLoginClient(login);
 			client.close(LoginFail.REASON_ACCOUNT_IN_USE);
 			return;
 		}
@@ -268,6 +268,7 @@ public class LoginController
 				}
 				catch (InterruptedException e)
 				{
+					LOGGER.info("PurgeThread was interrupted.", e);
 					return;
 				}
 			}

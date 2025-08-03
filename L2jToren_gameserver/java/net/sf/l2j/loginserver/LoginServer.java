@@ -49,12 +49,26 @@ public class LoginServer
 		{
 			LogManager.getLogManager().readConfiguration(is);
 		}
+		catch (IOException e)
+		{
+			LOGGER.error("Failed to load logging configuration.", e);
+			System.exit(1);
+		}
 		
 		StringUtil.printSection("Config");
 		Config.loadLoginServer();
 		
 		StringUtil.printSection("Poolers");
 		ConnectionPool.init();
+		
+		// Add a shutdown hook to close the ConnectionPool gracefully
+		Runtime.getRuntime().addShutdownHook(new Thread(() ->
+		{
+			LOGGER.info("Shutting down ConnectionPool...");
+			ConnectionPool.shutdown();
+			LOGGER.info("Shutting down SelectorHelper...");
+			SelectorHelper.getInstance().shutdown();
+		}));
 		
 		AccountTable.getInstance();
 		
@@ -114,6 +128,7 @@ public class LoginServer
 			System.exit(1);
 		}
 		
+		_selectorThread.start();
 		try
 		{
 			_selectorThread.openServerSocket(bindAddress, Config.LOGINSERVER_PORT);
@@ -124,7 +139,6 @@ public class LoginServer
 			
 			System.exit(1);
 		}
-		_selectorThread.start();
 		LOGGER.info("Loginserver ready on {}:{}.", (bindAddress == null) ? "*" : bindAddress.getHostAddress(), Config.LOGINSERVER_PORT);
 		
 		StringUtil.printSection("Waiting for gameserver answer");

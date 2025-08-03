@@ -76,7 +76,7 @@ public abstract class FloodProtectedListener extends Thread
 				}
 				addClient(connection);
 			}
-			catch (Exception e)
+			catch (IOException e)
 			{
 				try
 				{
@@ -85,7 +85,7 @@ public abstract class FloodProtectedListener extends Thread
 				}
 				catch (Exception e2)
 				{
-					// Do nothing.
+					LOGGER.error("Error while closing connection after exception.", e2);
 				}
 				
 				if (isInterrupted())
@@ -96,7 +96,7 @@ public abstract class FloodProtectedListener extends Thread
 					}
 					catch (IOException io)
 					{
-						LOGGER.error(io);
+						LOGGER.error("Error while closing server socket.", io);
 					}
 					break;
 				}

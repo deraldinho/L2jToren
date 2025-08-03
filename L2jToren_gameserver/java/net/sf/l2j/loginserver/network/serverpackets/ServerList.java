@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.l2j.commons.logging.CLogger;
 import net.sf.l2j.commons.network.ServerType;
 
 import net.sf.l2j.loginserver.data.manager.GameServerManager;
@@ -14,6 +15,7 @@ import net.sf.l2j.loginserver.model.ServerData;
 
 public final class ServerList extends L2LoginServerPacket
 {
+	private static final CLogger LOGGER = new CLogger(ServerList.class.getName());
 	private final List<ServerData> _servers = new ArrayList<>();
 	
 	private final int _lastServer;
@@ -52,7 +54,7 @@ public final class ServerList extends L2LoginServerPacket
 			}
 			catch (UnknownHostException e)
 			{
-				e.printStackTrace();
+				LOGGER.error("Couldn't resolve hostname for server list.", e);
 				writeC(127);
 				writeC(0);
 				writeC(0);
