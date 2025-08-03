@@ -14,6 +14,10 @@ Este projeto se destaca por suas modificações customizadas, que incluem:
   - `.deposit`/`.withdraw`: Acessa um sistema de banco virtual.
 - **NPC Buffer:** Um NPC customizável que fornece buffs aos jogadores.
 
+## Melhorias no Sistema de Logging
+
+O sistema de logging foi aprimorado para maior clareza e rastreabilidade, com tratamento de exceções mais específico, registro detalhado de erros e eventos importantes, e padronização do uso de logs em todo o código.
+
 ## Pilha de Tecnologia
 
 - **Linguagem:** Java 11+
@@ -72,6 +76,17 @@ Edite os arquivos abaixo com as informações do seu banco de dados e IP:
   cd L2jToren_gameserver/dist/gameserver
   ./startGameServer.sh  # ou startGameServer.bat para Windows
   ```
+
+## Usando Docker para o Banco de Dados (Opcional)
+
+Se preferir usar Docker para gerenciar o banco de dados, siga estes passos:
+
+1.  **Inicie o Contêiner do Banco de Dados:**
+    ```bash
+    docker-compose up -d
+    ```
+2.  **Acesse o Adminer** (ferramenta de gerenciamento) em `http://localhost:8080`.
+3.  **Use as credenciais** definidas no `docker-compose.yml` para configurar os arquivos `server.properties` e `loginserver.properties`.
 
 ## Como Contribuir
 

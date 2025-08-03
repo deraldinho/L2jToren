@@ -75,7 +75,7 @@ O repositório está organizado nos seguintes diretórios principais:
 
 ### Pré-requisitos
 
-- **Java Development Kit (JDK):** Versão 11 ou superior.
+- **Java Development Kit (JDK):** Versão 21 ou superior.
 - **MySQL Server** ou **MariaDB Server**.
 - **Git**.
 - Uma ferramenta de gerenciamento de banco de dados (ex: **HeidiSQL**, **DBeaver**).
@@ -130,6 +130,41 @@ cd L2jToren_gameserver/dist/gameserver
 startGameServer.bat   # Para Windows
 ```
 
+## Uso com Docker (Opcional)
+
+Para facilitar a configuração do ambiente, o projeto inclui um arquivo `docker-compose.yml` que provisiona um banco de dados MariaDB e uma ferramenta de gerenciamento (Adminer). É uma alternativa à instalação manual do MySQL/MariaDB.
+
+### Pré-requisitos
+
+- **Docker** e **Docker Compose** instalados.
+
+### Como Usar
+
+1.  **Iniciar os Contêineres:**
+
+    Na raiz do projeto, execute o comando:
+
+    ```bash
+    docker-compose up -d
+    ```
+
+    Isso irá baixar as imagens e iniciar os serviços do MariaDB e do Adminer em segundo plano.
+
+2.  **Acessar o Banco de Dados:**
+
+    - **Via Adminer:** Acesse `http://localhost:8080` em seu navegador.
+    - **Credenciais:**
+        - **Sistema:** MariaDB
+        - **Servidor:** L2jToren
+        - **Usuário:** L2jToren
+        - **Senha:** 9643
+
+3.  **Configurar o Servidor:**
+
+    Ao configurar os arquivos `loginserver.properties` e `server.properties`, use as credenciais e o nome do serviço Docker (`L2jToren`) como o host do banco de dados.
+
+    **Importante:** O `Dockerfile` no projeto está atualmente vazio e serve como um ponto de partida para quem desejar containerizar os servidores do jogo no futuro.
+
 ## Administração e Melhores Práticas
 
 ### Segurança
@@ -138,10 +173,37 @@ startGameServer.bat   # Para Windows
 - **Proteção contra DDoS:** Utilize um serviço de mitigação de DDoS.
 - **Firewall:** Limite o acesso SSH e ao banco de dados apenas a IPs confiáveis.
 
+### Visão Geral dos Arquivos de Configuração
+
+A pasta `L2jToren_gameserver/config/` contém todos os arquivos de configuração do servidor. Abaixo está uma descrição dos arquivos mais importantes:
+
+-   **`server.properties`**: Configurações principais do Game Server, como taxas (XP, SP, drop), endereço do servidor, número máximo de jogadores e configurações de rates.
+-   **`loginserver.properties`**: Configurações do Login Server, incluindo o IP, a porta e as configurações de conexão com o banco de dados de contas.
+-   **`autofarm.properties`**: Ativa e configura o sistema de auto-farm, incluindo limites, custos e comportamento da IA.
+-   **`clans.properties`**: Define regras para clãs e alianças, como tempo de espera para criar/entrar em um clã e número máximo de membros.
+-   **`events.properties`**: Controla eventos automáticos como Olympiads, Seven Signs e loterias.
+-   **`npcs.properties`**: Configurações relacionadas a NPCs, como o Class Master, NPC Buffer, sistema de casamento e comportamento de bosses.
+-   **`players.properties`**: Ajustes que afetam diretamente os jogadores, como limites de inventário, chances de encantamento, regras de Karma/PvP e aprendizado de skills.
+-   **`siege.properties`**: Define as regras para cercos a castelos e clã halls.
+-   **`vip.properties`**: Configura o sistema VIP, incluindo os bônus de cada nível e como os jogadores obtêm o status VIP.
+-   **`VoicedCommand.properties`**: Ativa e configura os comandos de voz, como `.online` e o sistema de banco.
+-   **`geoengine.properties`**: Configurações do motor de geodata, essencial para o cálculo de movimento e linha de visão no mundo do jogo.
+-   **`logging.properties`**: Define como os logs do servidor são gerados e armazenados, útil para depuração e monitoramento.
+
 ### Otimização
 
 - **Ajuste da JVM:** Configure o tamanho do *heap* (`-Xms`, `-Xmx`) e experimente diferentes *Garbage Collectors* (como G1GC).
 - **Otimização do Banco de Dados:** Aloque memória suficiente para o `innodb_buffer_pool_size` e monitore *queries* lentas.
+
+### Melhorias no Sistema de Logging
+
+O sistema de logging foi aprimorado para oferecer maior clareza, rastreabilidade e robustez no registro de eventos e erros. As principais melhorias incluem:
+
+-   **Maior Especificidade no Tratamento de Exceções:** Substituição de capturas genéricas de exceções (`catch (Exception e)`) por tipos de exceção mais específicos (ex: `IOException`, `GeneralSecurityException`, `SQLException`, `UnknownHostException`). Isso permite um tratamento de erros mais preciso e evita a supressão de problemas inesperados.
+-   **Registro de Erros Aprimorado:** Troca de `e.printStackTrace()` ou falhas silenciosas por chamadas explícitas a `LOGGER.error`. Agora, as mensagens de erro incluem o objeto da exceção, fornecendo informações de depuração mais detalhadas e facilitando a identificação da causa raiz dos problemas.
+-   **Registro Informativo Melhorado:** Adição de mensagens `LOGGER.info` e `LOGGER.warn` para eventos importantes do sistema, como interrupções de threads, desconexões de clientes, falhas de checksum e processos de desligamento do servidor. Isso melhora a visibilidade do comportamento do servidor e auxilia na monitorização.
+-   **Padronização do Logging:** Substituição de `System.out.println` por `LOGGER.warn` para o registro de opcodes desconhecidos. Todas as mensagens de log agora utilizam a estrutura de logging configurada, garantindo consistência e permitindo o controle centralizado dos níveis de log e destinos.
+-   **Nome do Logger Corrigido:** O nome do logger na classe `IpBanManager.java` foi corrigido para refletir corretamente a classe, garantindo que as mensagens de log dessa classe sejam atribuídas ao logger apropriado.
 
 ## Licença
 

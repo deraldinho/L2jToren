@@ -33,3 +33,13 @@ Este documento detalha as funcionalidades e modificações exclusivas implementa
 ### NPC Buffer
 - **Descrição:** Um Personagem Não Jogável (NPC) especial que oferece uma lista de buffs (encantamentos) aos jogadores.
 - **Customização:** A lista de buffs, seus níveis e o custo podem ser totalmente configurados nos arquivos do servidor.
+
+## 2. Melhorias no Sistema de Logging
+
+O sistema de logging foi aprimorado para oferecer maior clareza, rastreabilidade e robustez no registro de eventos e erros. As principais melhorias incluem:
+
+-   **Maior Especificidade no Tratamento de Exceções:** Substituição de capturas genéricas de exceções por tipos de exceção mais específicos, permitindo um tratamento de erros mais preciso.
+-   **Registro de Erros Aprimorado:** Troca de `e.printStackTrace()` ou falhas silenciosas por chamadas explícitas a `LOGGER.error`, fornecendo informações de depuração mais detalhadas.
+-   **Registro Informativo Melhorado:** Adição de mensagens `LOGGER.info` e `LOGGER.warn` para eventos importantes do sistema, como interrupções de threads, desconexões de clientes e falhas de checksum.
+-   **Padronização do Logging:** Todas as mensagens de log agora utilizam a estrutura de logging configurada, garantindo consistência e permitindo o controle centralizado dos níveis de log e destinos.
+-   **Nome do Logger Corrigido:** O nome do logger na classe `IpBanManager.java` foi corrigido para refletir corretamente a classe.
