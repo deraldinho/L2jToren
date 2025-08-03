@@ -1,17 +1,35 @@
-Este documento é para representar a documentoção do projeto L2jToren.
+# Documentação de Modificações Customizadas - L2jToren
 
+Este documento detalha as funcionalidades e modificações exclusivas implementadas no projeto L2jToren. Para a documentação completa de instalação e configuração, consulte os arquivos `README.md` e `gemini.md`.
 
-*Mods - ADD*
-    - IconIventoryDate
-    - autofarm
-    - Voice Command
-        * .Online
-        * .BankingSystem ".deposit/.withdraw"
-        * .Menu
-            - Party Refusal
-            - Trade Refusal
-            - Buffs Refusal
-            - Message Refusal
-            - Auto GoldBar
-    - NPC Buffer
+## 1. Mods e Funcionalidades Adicionadas
 
+### Ícone de Data no Inventário (IconIventoryDate)
+- **Descrição:** Adiciona um pequeno ícone ou texto sobre os itens no inventário do jogador, indicando a data em que o item foi adquirido. Ajuda no controle e organização de itens.
+
+### Sistema de Auto-Farm (autofarm)
+- **Descrição:** Uma ferramenta de automação que permite aos jogadores farmar monstros em áreas pré-definidas sem interação manual constante.
+- **Configuração:** As áreas e condições do auto-farm podem ser ajustadas nos arquivos de configuração do servidor.
+
+### Comandos de Voz (Voice Commands)
+- **Descrição:** Comandos que podem ser digitados no chat para executar ações rápidas.
+
+- **Comando: `.online`**
+  - **Ação:** Exibe a contagem atual de jogadores conectados ao servidor.
+
+- **Comando: `.banking`**
+  - **Ação:** Permite ao jogador depositar ou retirar Gold Bars de um banco virtual.
+  - **Uso:** `.deposit` / `.withdraw`
+
+- **Comando: `.menu`**
+  - **Ação:** Abre uma interface de usuário (UI) onde o jogador pode gerenciar suas preferências de interação.
+  - **Opções no Menu:**
+    - **Party Refusal:** Bloqueia/desbloqueia convites para grupos.
+    - **Trade Refusal:** Bloqueia/desbloqueia pedidos de troca.
+    - **Buffs Refusal:** Bloqueia/desbloqueia o recebimento de buffs de outros jogadores.
+    - **Message Refusal:** Bloqueia/desbloqueia mensagens privadas (whisper).
+    - **Auto GoldBar:** Ativa/desativa a conversão automática de Adena para Gold Bars ao atingir um certo montante.
+
+### NPC Buffer
+- **Descrição:** Um Personagem Não Jogável (NPC) especial que oferece uma lista de buffs (encantamentos) aos jogadores.
+- **Customização:** A lista de buffs, seus níveis e o custo podem ser totalmente configurados nos arquivos do servidor.

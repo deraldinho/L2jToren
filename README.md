@@ -1,117 +1,93 @@
 # L2jToren
 
-![L2jToren Logo](https://example.com/logo.png)
+O **L2jToren** é um emulador de servidor de código aberto para o MMORPG Lineage 2, desenvolvido em Java. O projeto é um fork da família L2J e foca em estabilidade, novas funcionalidades e uma experiência de jogo aprimorada.
 
-## Descrição
+## Funcionalidades Exclusivas
 
-O L2jToren é um servidor de Lineage II baseado na engine L2jaCis 409. Nosso objetivo é criar um servidor divertido e estável, com uma comunidade ativa e uma experiência de jogo enriquecedora.
+Este projeto se destaca por suas modificações customizadas, que incluem:
 
-## Índice
+- **Ícone de Data no Inventário:** Exibe a data de aquisição nos itens.
+- **Sistema de Auto-Farm:** Permite a configuração de farm automático em áreas designadas.
+- **Comandos de Voz:**
+  - `.online`: Mostra o número de jogadores online.
+  - `.menu`: Abre um painel de configurações do jogador (recusar trades, buffs, etc.).
+  - `.deposit`/`.withdraw`: Acessa um sistema de banco virtual.
+- **NPC Buffer:** Um NPC customizável que fornece buffs aos jogadores.
 
-- [Requisitos](#requisitos)
-- [Instalação](#instalação)
-- [Configuração](#configuração)
-- [Uso](#uso)
-- [Contribuindo](#contribuindo)
-- [Licença](#licença)
-- [Contato](#contato)
+## Pilha de Tecnologia
 
-## Requisitos
+- **Linguagem:** Java 11+
+- **Build Tool:** Ant
+- **Banco de Dados:** MySQL ou MariaDB
+- **Controle de Versão:** Git
 
-Antes de começar, certifique-se de ter os seguintes requisitos instalados no seu sistema:
+## Instalação Rápida
 
-- **Java Development Kit (JDK)**: Versão 11 ou superior.
-- **MySQL**: Versão 5.7 ou superior.
-- **Git**: Para clonar o repositório.
-- **ANT**: Para compilar o projeto.
+### Pré-requisitos
 
-## Instalação
+- JDK 21 ou superior
+- MySQL/MariaDB Server
+- Git
 
-Siga os passos abaixo para instalar e configurar o servidor L2jToren:
+### 1. Clone o Repositório
 
-1. **Clone o Repositório**
-
-   ```bash
-   git clone https://github.com/deraldinho/L2jToren.git
-   cd L2jToren
-
-Instale as Dependências
-
-Certifique-se de ter o ANT instalado e execute:
-
-mvn clean install
-Configure o Banco de Dados
-
-Crie um banco de dados no MySQL com o nome l2jdb ou qualquer outro nome de sua preferência.
-
-Importe o arquivo SQL fornecido no repositório para inicializar o banco de dados:
-
-mysql -u seu_usuario -p seu_banco_de_dados < data/sql/l2jdb.sql
-Configurar Arquivos de Configuração
-
-Copie os arquivos de configuração de exemplo para os arquivos de configuração reais:
-
-cp config/server.properties.example config/server.properties
-cp config/loginserver.properties.example config/loginserver.properties
-cp config/game.properties.example config/game.properties
-Edite os arquivos de configuração conforme necessário, especialmente as configurações de banco de dados e servidor.
-
-Configuração
-Configuração do Banco de Dados
-Edite o arquivo config/server.properties e configure as seguintes propriedades:
-
-jdbcUrl=jdbc:mysql://localhost/seu_banco_de_dados?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-jdbcLogin=seu_usuario
-jdbcPassword=sua_senha
-
-Configuração do Servidor
-Edite o arquivo config/server.properties e configure as seguintes propriedades:
-
-ServerPort=7777
-LoginPort=2106
-
-Uso
-Iniciar o Login Server
-
-cd login
-./startLoginServer.sh
-Iniciar o Game Server
-
-cd game
-./startGameServer.sh
-Conectar-se ao Servidor
-
-Use o cliente oficial do Lineage II para se conectar ao servidor usando os endereços IP e portas configurados.
-
-Contribuindo
-Sua contribuição é muito bem-vinda! Para contribuir com o projeto, siga os passos abaixo:
-
-Faça um Fork do Repositório
-
-Clique no botão "Fork" no canto superior direito do repositório.
-
-Clone o Repositório Forkado
-
-git clone https://github.com/seu_usuario/L2jToren.git
+```bash
+git clone https://github.com/deraldinho/L2jToren.git
 cd L2jToren
-Crie uma Nova Branch
+```
 
-git checkout -b feature/nome_da_sua_feature
-Faça as Alterações e Commite
+### 2. Compile o Servidor
 
-git add .
-git commit -m "Adiciona nova feature"
-Faça Push para o Repositório Forkado
+```bash
+cd L2jToren_gameserver
+ant dist
+```
 
-git push origin feature/nome_da_sua_feature
-Crie um Pull Request
+Isso irá gerar os builds do Login Server e do Game Server no diretório `L2jToren_gameserver/dist`.
 
-Vá para o repositório original em GitHub e clique em "New Pull Request". Siga as instruções para criar o pull request.
+### 3. Configure o Banco de Dados
 
-Licença
-Este projeto está licenciado sob a MIT License.
+1. **Crie dois bancos de dados** (ex: `l2jls_toren` e `l2jgs_toren`).
+2. **Importe o arquivo** `L2jToren_datapack/tools/full_install.sql` para popular o banco de dados do Game Server.
 
-Contato
-Desenvolvedores: Lista de Desenvolvedores
-Discord: L2jToren Discord
-Email: contato@l2jtorren.com
+### 4. Configure os Servidores
+
+Edite os arquivos abaixo com as informações do seu banco de dados e IP:
+
+- `L2jToren_gameserver/config/loginserver.properties`
+- `L2jToren_gameserver/config/server.properties`
+
+### 5. Inicie os Servidores
+
+- **Login Server:**
+
+  ```bash
+  cd L2jToren_gameserver/dist/login
+  ./startLoginServer.sh  # ou startLoginServer.bat para Windows
+  ```
+
+- **Game Server:**
+
+  ```bash
+  cd L2jToren_gameserver/dist/gameserver
+  ./startGameServer.sh  # ou startGameServer.bat para Windows
+  ```
+
+## Como Contribuir
+
+Sua contribuição é muito bem-vinda!
+
+1. **Faça um Fork** deste repositório.
+2. Crie uma nova **Branch** (`git checkout -b feature/sua-feature`).
+3. **Commite** suas alterações (`git commit -m 'Adiciona nova feature'`).
+4. **Faça o Push** para a sua branch (`git push origin feature/sua-feature`).
+5. Abra um **Pull Request**.
+
+## Licença
+
+Este projeto está licenciado sob a [GNU General Public License v3.0 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.en.html).
+
+## Contato
+
+- **Discord:** L2jToren Discord
+- **Email:** [contato@l2jtorren.com](mailto:contato@l2jtorren.com)
