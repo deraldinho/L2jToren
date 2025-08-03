@@ -43,3 +43,9 @@ O sistema de logging foi aprimorado para oferecer maior clareza, rastreabilidade
 -   **Registro Informativo Melhorado:** Adição de mensagens `LOGGER.info` e `LOGGER.warn` para eventos importantes do sistema, como interrupções de threads, desconexões de clientes e falhas de checksum.
 -   **Padronização do Logging:** Todas as mensagens de log agora utilizam a estrutura de logging configurada, garantindo consistência e permitindo o controle centralizado dos níveis de log e destinos.
 -   **Nome do Logger Corrigido:** O nome do logger na classe `IpBanManager.java` foi corrigido para refletir corretamente a classe.
+
+## 3. Proposta de Modularização para L2jToren_gameserver
+
+Para aumentar a robustez, manutenibilidade e escalabilidade do `L2jToren_gameserver`, propõe-se uma modularização aprofundada, dividindo o servidor de jogo em subsistemas mais coesos e com responsabilidades bem definidas. Esta estrutura visa reduzir o acoplamento e facilitar o desenvolvimento e teste de componentes independentes.
+
+Esta modularização é uma proposta inicial e será refinada durante a fase de implementação, com foco na definição de interfaces claras e na redução de dependências entre os módulos.

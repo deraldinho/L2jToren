@@ -2,8 +2,10 @@ package net.sf.l2j.gameserver;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.logging.LogManager;
 
 import net.sf.l2j.commons.lang.StringUtil;

@@ -1,6 +1,8 @@
 package net.sf.l2j.loginserver.data.manager;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

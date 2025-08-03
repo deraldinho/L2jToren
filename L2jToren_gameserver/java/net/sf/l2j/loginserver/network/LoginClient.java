@@ -3,6 +3,7 @@ package net.sf.l2j.loginserver.network;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.security.interfaces.RSAPrivateKey;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import net.sf.l2j.commons.logging.CLogger;
@@ -73,7 +74,7 @@ public final class LoginClient extends MMOClient<MMOConnection<LoginClient>>
 			}
 			return true;
 		}
-		catch (GeneralSecurityException e)
+		catch (IOException e)
 		{
 			LOGGER.error("Couldn't decrypt LoginClient packet.", e);
 			super.getConnection().close((SendablePacket<LoginClient>) null);
@@ -89,7 +90,7 @@ public final class LoginClient extends MMOClient<MMOConnection<LoginClient>>
 		{
 			size = _loginCrypt.encrypt(buf.array(), offset, size);
 		}
-		catch (GeneralSecurityException e)
+		catch (IOException e)
 		{
 			LOGGER.error("Couldn't encrypt LoginClient packet.", e);
 			return false;

@@ -18,6 +18,10 @@ Este projeto se destaca por suas modificações customizadas, que incluem:
 
 O sistema de logging foi aprimorado para maior clareza e rastreabilidade, com tratamento de exceções mais específico, registro detalhado de erros e eventos importantes, e padronização do uso de logs em todo o código.
 
+## Estrutura do Projeto (Proposta de Modularização)
+
+Para melhorar a manutenibilidade e escalabilidade, o `L2jToren_gameserver` está sendo refatorado em módulos mais coesos, como `core`, `world`, `combat`, `item`, `npc`, `network`, `player` e `system`. Esta abordagem visa reduzir o acoplamento e facilitar o desenvolvimento.
+
 ## Pilha de Tecnologia
 
 - **Linguagem:** Java 11+

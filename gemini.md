@@ -64,6 +64,46 @@ O repositório está organizado nos seguintes diretórios principais:
 - **`L2jToren_gameserver/`**: Contém o código-fonte do servidor do jogo (Game Server) e do servidor de login (Login Server). É aqui que a lógica principal do jogo é implementada.
 - **`L2jToren_datapack/`**: Contém todos os dados que o servidor utiliza, como definições de NPCs, itens, skills, quests, mapas e configurações de geodata.
 
+### Proposta de Modularização para L2jToren_gameserver
+
+Para aumentar a robustez, manutenibilidade e escalabilidade do `L2jToren_gameserver`, propõe-se uma modularização aprofundada, dividindo o servidor de jogo em subsistemas mais coesos e com responsabilidades bem definidas. Esta estrutura visa reduzir o acoplamento e facilitar o desenvolvimento e teste de componentes independentes.
+
+A seguir, a proposta de divisão em sub-módulos:
+
+1.  **`gameserver.core`**:
+    *   **Responsabilidade:** Contém a lógica central do servidor, inicialização, desligamento e utilitários fundamentais.
+    *   **Conteúdo Potencial:** `GameServer.java`, `Shutdown.java`, `idfactory`, `enums`, e as classes base para `model` e `network` que são amplamente utilizadas.
+
+2.  **`gameserver.world`**:
+    *   **Responsabilidade:** Gerenciamento do mundo do jogo, geodata, zonas, castelos e clanhalls.
+    *   **Conteúdo Potencial:** `geoengine`, `data/manager` (para `CastleManager`, `ClanHallManager`, `ZoneManager`), `data/xml` (para `DoorData`, `StaticObjectData`, `ManorAreaData`).
+
+3.  **`gameserver.combat`**:
+    *   **Responsabilidade:** Lógica de combate, habilidades (skills), buffs e debuffs.
+    *   **Conteúdo Potencial:** `skills`, `data/SkillTable`, `taskmanager` (para `AttackStanceTaskManager`).
+
+4.  **`gameserver.item`**:
+    *   **Responsabilidade:** Gerenciamento de itens, inventário, receitas, drops e sistemas relacionados a itens.
+    *   **Conteúdo Potencial:** `data/xml` (para `ItemData`, `SummonItemData`, `RecipeData`, `ArmorSetData`, `SoulCrystalData`, `AugmentationData`), `data/manager` (para `BuyListManager`, `MultisellData`, `CursedWeaponManager`), `taskmanager` (para `InventoryUpdateTaskManager`, `ItemsOnGroundTaskManager`, `ShadowItemTaskManager`).
+
+5.  **`gameserver.npc`**:
+    *   **Responsabilidade:** Lógica de NPCs, IA, spawns e interações com NPCs.
+    *   **Conteúdo Potencial:** `data/xml` (para `NpcData`, `WalkerRouteData`, `NewbieBuffData`, `BufferManager`), `taskmanager` (para `AiTaskManager`).
+
+6.  **`gameserver.network`**:
+    *   **Responsabilidade:** Toda a comunicação de rede com os clientes do jogo.
+    *   **Conteúdo Potencial:** `network` (pacotes de cliente e servidor, manipulação de conexão).
+
+7.  **`gameserver.player`**:
+    *   **Responsabilidade:** Lógica específica do jogador, como dados do personagem, sistema de karma/PvP, e gerenciamento de sessões.
+    *   **Conteúdo Potencial:** `model` (para `Player`), `data/sql` (para `PlayerInfoTable`, `BookmarkTable`), `data/xml` (para `PlayerData`, `PlayerLevelData`).
+
+8.  **`gameserver.system`**:
+    *   **Responsabilidade:** Sistemas de jogo diversos, como eventos (Olympiad, Seven Signs), comunidade (BBS), VIP, autofarm, etc.
+    *   **Conteúdo Potencial:** `autofarm`, `communitybbs`, `vip`, `scripting`, e os managers para `Olympiad`, `SevenSigns`, `CoupleManager`, `DerbyTrackManager`, `LotteryManager`, `FishingChampionshipManager`, `PetitionManager`, `RaidPointManager`, `HeroManager`.
+
+Esta modularização é uma proposta inicial e será refinada durante a fase de implementação, com foco na definição de interfaces claras e na redução de dependências entre os módulos.
+
 ## Pilha de Tecnologia (Tech Stack)
 
 - **Linguagem Principal:** [**Java**](https.www.java.com/) (Versão 11+)
