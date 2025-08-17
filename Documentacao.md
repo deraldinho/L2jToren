@@ -28,7 +28,7 @@ Para melhorar a manutenibilidade e escalabilidade, o `L2jToren_gameserver` está
 
 Esta modularização visa reduzir o acoplamento entre as diferentes partes do sistema, facilitando o desenvolvimento paralelo e a manutenção.
 
-### 2.2. Estrutura de Diretórios Atual
+d### 2.2. Estrutura de Diretórios Atual
 
 A estrutura atual do projeto reflete a transição de um sistema de build baseado em Ant para Gradle, com uma clara separação entre a lógica do servidor e os dados do jogo.
 
