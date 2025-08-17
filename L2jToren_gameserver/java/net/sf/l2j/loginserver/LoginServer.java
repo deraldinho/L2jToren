@@ -21,6 +21,9 @@ import net.sf.l2j.loginserver.data.sql.AccountTable;
 import net.sf.l2j.loginserver.network.LoginClient;
 import net.sf.l2j.loginserver.network.LoginPacketHandler;
 
+/**
+ * A classe principal do Login Server.
+ */
 public class LoginServer
 {
 	private static final CLogger LOGGER = new CLogger(LoginServer.class.getName());
@@ -39,19 +42,19 @@ public class LoginServer
 	
 	public LoginServer() throws Exception
 	{
-		// Create log folder
+		// Cria as pastas de log.
 		new File("./log").mkdir();
 		new File("./log/console").mkdir();
 		new File("./log/error").mkdir();
 		
-		// Create input stream for log file -- or store file data into memory
+		// Carrega a configuração de logging.
 		try (InputStream is = new FileInputStream(new File("config/logging.properties")))
 		{
 			LogManager.getLogManager().readConfiguration(is);
 		}
 		catch (IOException e)
 		{
-			LOGGER.error("Failed to load logging configuration.", e);
+			LOGGER.error("Falha ao carregar a configuração de logging.", e);
 			System.exit(1);
 		}
 		
@@ -61,12 +64,12 @@ public class LoginServer
 		StringUtil.printSection("Poolers");
 		ConnectionPool.init();
 		
-		// Add a shutdown hook to close the ConnectionPool gracefully
+		// Adiciona um shutdown hook para fechar o ConnectionPool e o SelectorHelper de forma graciosa.
 		Runtime.getRuntime().addShutdownHook(new Thread(() ->
 		{
-			LOGGER.info("Shutting down ConnectionPool...");
+			LOGGER.info("Desligando o ConnectionPool...");
 			ConnectionPool.shutdown();
-			LOGGER.info("Shutting down SelectorHelper...");
+			LOGGER.info("Desligando o SelectorHelper...");
 			SelectorHelper.getInstance().shutdown();
 		}));
 		
@@ -91,7 +94,7 @@ public class LoginServer
 			}
 			catch (UnknownHostException uhe)
 			{
-				LOGGER.error("The LoginServer bind address is invalid, using all available IPs.", uhe);
+				LOGGER.error("O endereço de bind do LoginServer é inválido, usando todos os IPs disponíveis.", uhe);
 			}
 		}
 		
@@ -109,7 +112,7 @@ public class LoginServer
 		}
 		catch (IOException ioe)
 		{
-			LOGGER.error("Failed to open selector.", ioe);
+			LOGGER.error("Falha ao abrir o seletor.", ioe);
 			
 			System.exit(1);
 		}
@@ -119,11 +122,11 @@ public class LoginServer
 			_gameServerListener = new GameServerListener();
 			_gameServerListener.start();
 			
-			LOGGER.info("Listening for gameservers on {}:{}.", Config.GAMESERVER_LOGIN_HOSTNAME, Config.GAMESERVER_LOGIN_PORT);
+			LOGGER.info("Ouvindo gameservers em {}:{}.", Config.GAMESERVER_LOGIN_HOSTNAME, Config.GAMESERVER_LOGIN_PORT);
 		}
 		catch (IOException ioe)
 		{
-			LOGGER.error("Failed to start the gameserver listener.", ioe);
+			LOGGER.error("Falha ao iniciar o listener de gameservers.", ioe);
 			
 			System.exit(1);
 		}
@@ -135,13 +138,13 @@ public class LoginServer
 		}
 		catch (IOException ioe)
 		{
-			LOGGER.error("Failed to open server socket.", ioe);
+			LOGGER.error("Falha ao abrir o server socket.", ioe);
 			
 			System.exit(1);
 		}
-		LOGGER.info("Loginserver ready on {}:{}.", (bindAddress == null) ? "*" : bindAddress.getHostAddress(), Config.LOGINSERVER_PORT);
+		LOGGER.info("Loginserver pronto em {}:{}.", (bindAddress == null) ? "*" : bindAddress.getHostAddress(), Config.LOGINSERVER_PORT);
 		
-		StringUtil.printSection("Waiting for gameserver answer");
+		StringUtil.printSection("Aguardando resposta do gameserver");
 	}
 	
 	public static LoginServer getInstance()

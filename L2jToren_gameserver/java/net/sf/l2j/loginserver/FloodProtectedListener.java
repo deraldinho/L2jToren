@@ -11,10 +11,14 @@ import net.sf.l2j.commons.logging.CLogger;
 
 import net.sf.l2j.Config;
 
+/**
+ * Uma classe abstrata para um listener de socket com proteção contra flood.
+ */
 public abstract class FloodProtectedListener extends Thread
 {
 	private static final CLogger LOGGER = new CLogger(FloodProtectedListener.class.getName());
 	
+	// Mapa para rastrear conexões de entrada e detectar floods.
 	private final Map<String, ForeignConnection> _flooders = new ConcurrentHashMap<>();
 	
 	private final ServerSocket _serverSocket;
@@ -27,6 +31,10 @@ public abstract class FloodProtectedListener extends Thread
 			_serverSocket = new ServerSocket(port, 50, InetAddress.getByName(listenIp));
 	}
 	
+	/**
+	 * Método abstrato para adicionar um novo cliente. Deve ser implementado pela subclasse.
+	 * @param s O Socket do cliente.
+	 */
 	public abstract void addClient(Socket s);
 	
 	@SuppressWarnings("resource")
@@ -39,6 +47,8 @@ public abstract class FloodProtectedListener extends Thread
 			try
 			{
 				connection = _serverSocket.accept();
+				
+				// Se a proteção contra flood estiver ativada, verifica a conexão.
 				if (Config.FLOOD_PROTECTION)
 				{
 					final String address = connection.getInetAddress().getHostAddress();
@@ -47,7 +57,8 @@ public abstract class FloodProtectedListener extends Thread
 					final ForeignConnection fc = _flooders.get(address);
 					if (fc != null)
 					{
-						fc.attempts += 1;
+						fc.attempts++;
+						// Verifica se a conexão é muito rápida ou excede os limites.
 						if ((fc.attempts > Config.FAST_CONNECTION_LIMIT && (currentTime - fc.lastConnection) < Config.NORMAL_CONNECTION_TIME) || (currentTime - fc.lastConnection) < Config.FAST_CONNECTION_TIME || fc.attempts > Config.MAX_CONNECTION_PER_IP)
 						{
 							fc.lastConnection = currentTime;
@@ -56,17 +67,17 @@ public abstract class FloodProtectedListener extends Thread
 							connection.close();
 							
 							if (!fc.isFlooding)
-								LOGGER.info("Flood detected from {}.", address);
+								LOGGER.info("Flood detectado de {}.", address);
 							
 							fc.isFlooding = true;
 							continue;
 						}
 						
-						// If connection was flooding server but now passed the check.
+						// Se a conexão estava inundando o servidor, mas agora passou na verificação.
 						if (fc.isFlooding)
 						{
 							fc.isFlooding = false;
-							LOGGER.info("{} isn't considered as flooding anymore.", address);
+							LOGGER.info("{} não é mais considerado como flooding.", address);
 						}
 						
 						fc.lastConnection = currentTime;
@@ -74,6 +85,7 @@ public abstract class FloodProtectedListener extends Thread
 					else
 						_flooders.put(address, new ForeignConnection(currentTime));
 				}
+				// Se a conexão for válida, adiciona o cliente.
 				addClient(connection);
 			}
 			catch (IOException e)
@@ -85,7 +97,7 @@ public abstract class FloodProtectedListener extends Thread
 				}
 				catch (Exception e2)
 				{
-					LOGGER.error("Error while closing connection after exception.", e2);
+					LOGGER.error("Erro ao fechar a conexão após exceção.", e2);
 				}
 				
 				if (isInterrupted())
@@ -96,7 +108,7 @@ public abstract class FloodProtectedListener extends Thread
 					}
 					catch (IOException io)
 					{
-						LOGGER.error("Error while closing server socket.", io);
+						LOGGER.error("Erro ao fechar o server socket.", io);
 					}
 					break;
 				}
@@ -104,6 +116,10 @@ public abstract class FloodProtectedListener extends Thread
 		}
 	}
 	
+	/**
+	 * Remove um IP do rastreamento de flood, geralmente quando uma conexão é encerrada normalmente.
+	 * @param ip O endereço IP a ser removido.
+	 */
 	public void removeFloodProtection(String ip)
 	{
 		if (!Config.FLOOD_PROTECTION)
@@ -119,6 +135,9 @@ public abstract class FloodProtectedListener extends Thread
 		}
 	}
 	
+	/**
+	 * Classe interna para armazenar informações sobre uma conexão externa.
+	 */
 	protected static class ForeignConnection
 	{
 		public int attempts;

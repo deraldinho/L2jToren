@@ -7,8 +7,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.sf.l2j.Config;
 
+/**
+ * Esta classe ouve e aceita conexões de entrada de Servidores de Jogo (Game Servers).
+ */
 public class GameServerListener extends FloodProtectedListener
 {
+	// Lista de threads de Game Servers conectados.
 	private static List<GameServerThread> _gameServers = new CopyOnWriteArrayList<>();
 	
 	public GameServerListener() throws IOException
@@ -16,12 +20,21 @@ public class GameServerListener extends FloodProtectedListener
 		super(Config.GAMESERVER_LOGIN_HOSTNAME, Config.GAMESERVER_LOGIN_PORT);
 	}
 	
+	/**
+	 * Chamado quando um novo cliente (Game Server) se conecta.
+	 * @param s O Socket da conexão do Game Server.
+	 */
 	@Override
 	public void addClient(Socket s)
 	{
+		// Cria uma nova thread para lidar com a comunicação com o Game Server e a adiciona à lista.
 		_gameServers.add(new GameServerThread(s));
 	}
 	
+	/**
+	 * Remove um GameServerThread da lista de servidores de jogo ativos.
+	 * @param gst A thread do Game Server a ser removida.
+	 */
 	public void removeGameServer(GameServerThread gst)
 	{
 		_gameServers.remove(gst);

@@ -10,7 +10,7 @@ import net.sf.l2j.commons.pool.ConnectionPool;
 import net.sf.l2j.loginserver.model.Account;
 
 /**
- * This class controls all generated {@link Account}s.
+ * Esta classe gerencia todas as operações de banco de dados relacionadas às {@link Account}s.
  */
 public class AccountTable
 {
@@ -27,8 +27,9 @@ public class AccountTable
 	}
 	
 	/**
-	 * @param login : The {@link String} used as login.
-	 * @return A new {@link Account} whom informations are already registered into the database, or null if not existing.
+	 * Recupera uma conta do banco de dados.
+	 * @param login O login da conta a ser recuperada.
+	 * @return Uma nova instância de {@link Account} com as informações da conta, ou null se não existir.
 	 */
 	public Account getAccount(String login)
 	{
@@ -45,16 +46,17 @@ public class AccountTable
 		}
 		catch (Exception e)
 		{
-			LOGGER.error("Exception retrieving account infos.", e);
+			LOGGER.error("Exceção ao recuperar informações da conta.", e);
 		}
 		return null;
 	}
 	
 	/**
-	 * @param login : The {@link String} used as login.
-	 * @param hashed : The {@link String} used as hashed password.
-	 * @param currentTime : The creation timestamp of the newly generated {@link Account}.
-	 * @return A new {@link Account} whom informations are saved into the database, or null if a problem occured.
+	 * Cria uma nova conta no banco de dados.
+	 * @param login O login da nova conta.
+	 * @param hashed A senha já criptografada (hashed).
+	 * @param currentTime O timestamp da criação da conta.
+	 * @return Uma nova instância de {@link Account} representando a conta criada, ou null se ocorrer um problema.
 	 */
 	public Account createAccount(String login, String hashed, long currentTime)
 	{
@@ -68,18 +70,19 @@ public class AccountTable
 		}
 		catch (Exception e)
 		{
-			LOGGER.error("Exception auto creating account for {}.", e, login);
+			LOGGER.error("Exceção ao criar a conta para {}.", e, login);
 			return null;
 		}
 		
-		// Generate a new Account.
+		// Gera uma nova instância de Account.
 		return new Account(login, hashed, 0, 1);
 	}
 	
 	/**
-	 * @param login : The {@link String} used as login.
-	 * @param currentTime : The timestamp to refresh this {@link Account} with.
-	 * @return True if the given {@link Account} last_active timestamp has been correctly refreshed on the database, false otherwise.
+	 * Atualiza o timestamp do último acesso de uma conta.
+	 * @param login O login da conta a ser atualizada.
+	 * @param currentTime O novo timestamp de último acesso.
+	 * @return True se a atualização for bem-sucedida, false caso contrário.
 	 */
 	public boolean setAccountLastTime(String login, long currentTime)
 	{
@@ -92,16 +95,16 @@ public class AccountTable
 		}
 		catch (Exception e)
 		{
-			LOGGER.error("Exception auto creating account for {}.", e, login);
+			LOGGER.error("Exceção ao atualizar o último acesso da conta {}.", e, login);
 			return false;
 		}
 		return true;
 	}
 	
 	/**
-	 * Refresh access_level value of an {@link Account} on the database.
-	 * @param login : The {@link String} used as login.
-	 * @param level : The new level to set.
+	 * Atualiza o nível de acesso de uma conta no banco de dados.
+	 * @param login O login da conta a ser atualizada.
+	 * @param level O novo nível de acesso a ser definido.
 	 */
 	public void setAccountAccessLevel(String login, int level)
 	{
@@ -114,14 +117,14 @@ public class AccountTable
 		}
 		catch (Exception e)
 		{
-			LOGGER.error("Couldn't set access level {} for {}.", e, level, login);
+			LOGGER.error("Não foi possível definir o nível de acesso {} para {}.", e, level, login);
 		}
 	}
 	
 	/**
-	 * Refresh last_server value of an {@link Account} on the database.
-	 * @param login : The {@link String} used as login.
-	 * @param serverId : The serverId to set.
+	 * Atualiza o último servidor acessado por uma conta no banco de dados.
+	 * @param login O login da conta a ser atualizada.
+	 * @param serverId O ID do último servidor acessado.
 	 */
 	public void setAccountLastServer(String login, int serverId)
 	{
@@ -134,7 +137,7 @@ public class AccountTable
 		}
 		catch (Exception e)
 		{
-			LOGGER.error("Couldn't set last server.", e);
+			LOGGER.error("Não foi possível definir o último servidor.", e);
 		}
 	}
 	

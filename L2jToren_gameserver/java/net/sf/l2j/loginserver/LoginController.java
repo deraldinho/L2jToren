@@ -29,17 +29,25 @@ import net.sf.l2j.loginserver.network.serverpackets.LoginFail;
 import net.sf.l2j.loginserver.network.serverpackets.LoginOk;
 import net.sf.l2j.loginserver.network.serverpackets.ServerList;
 
+/**
+ * Gerencia o processo de login, incluindo autenticação e gerenciamento de sessão.
+ */
 public class LoginController
 {
 	private static final CLogger LOGGER = new CLogger(LoginController.class.getName());
 	
+	// Tempo limite para o login em milissegundos.
 	public static final int LOGIN_TIMEOUT = 60 * 1000;
 	
+	// Mapa de clientes que estão atualmente autenticados no login server.
 	private final Map<String, LoginClient> _clients = new ConcurrentHashMap<>();
+	// Mapa de tentativas de login falhas por endereço IP.
 	private final Map<InetAddress, Integer> _failedAttempts = new ConcurrentHashMap<>();
 	
+	// Pares de chaves RSA para comunicação segura.
 	protected ScrambledKeyPair[] _keyPairs;
 	
+	// Chaves Blowfish para criptografia de pacotes.
 	protected byte[][] _blowfishKeys;
 	private static final int BLOWFISH_KEYS = 20;
 	
@@ -47,26 +55,26 @@ public class LoginController
 	{
 		_keyPairs = new ScrambledKeyPair[10];
 		
-		// Generate keys.
+		// Gera as chaves criptográficas.
 		try
 		{
 			final KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
 			final RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(1024, RSAKeyGenParameterSpec.F4);
 			
-			// Initialize the key pair generator.
+			// Inicializa o gerador de pares de chaves.
 			keygen.initialize(spec);
 			
-			// Generate the initial set of keys.
+			// Gera o conjunto inicial de pares de chaves.
 			for (int i = 0; i < 10; i++)
 				_keyPairs[i] = new ScrambledKeyPair(keygen.generateKeyPair());
 			
-			LOGGER.info("Cached 10 KeyPairs for RSA communication.");
+			LOGGER.info("Cache de 10 pares de chaves para comunicação RSA gerado.");
 			
-			// Test the cipher.
+			// Testa o cifrador.
 			final Cipher rsaCipher = Cipher.getInstance("RSA/ECB/nopadding");
 			rsaCipher.init(Cipher.DECRYPT_MODE, _keyPairs[0].getKeyPair().getPrivate());
 			
-			// Store keys for blowfish communication.
+			// Armazena as chaves para a comunicação Blowfish.
 			_blowfishKeys = new byte[BLOWFISH_KEYS][16];
 			
 			for (int i = 0; i < BLOWFISH_KEYS; i++)
@@ -74,24 +82,31 @@ public class LoginController
 				for (int j = 0; j < _blowfishKeys[i].length; j++)
 					_blowfishKeys[i][j] = (byte) (Rnd.get(255) + 1);
 			}
-			LOGGER.info("Stored {} keys for Blowfish communication.", _blowfishKeys.length);
+			LOGGER.info("Armazenadas {} chaves para comunicação Blowfish.", _blowfishKeys.length);
 		}
 		catch (GeneralSecurityException gse)
 		{
-			LOGGER.error("Failed generating keys.", gse);
+			LOGGER.error("Falha ao gerar as chaves.", gse);
 		}
 		
-		// "Dropping AFK connections on login" task.
+		// Thread para "limpar" conexões inativas.
 		final Thread purge = new PurgeThread();
 		purge.setDaemon(true);
 		purge.start();
 	}
 	
+	/**
+	 * @return Uma chave Blowfish aleatória do cache.
+	 */
 	public byte[] getRandomBlowfishKey()
 	{
 		return Rnd.get(_blowfishKeys);
 	}
 	
+	/**
+	 * Remove um cliente autenticado do mapa de clientes.
+	 * @param account O nome da conta a ser removida.
+	 */
 	public void removeAuthedLoginClient(String account)
 	{
 		if (account == null)
@@ -100,47 +115,51 @@ public class LoginController
 		_clients.remove(account);
 	}
 	
+	/**
+	 * @param account O nome da conta.
+	 * @return O LoginClient autenticado para a conta especificada, ou null se não houver.
+	 */
 	public LoginClient getAuthedClient(String account)
 	{
 		return _clients.get(account);
 	}
 	
 	/**
-	 * Update attempts counter. If the maximum amount is reached, it will end with a client ban.
-	 * @param address : The {@link InetAddress} to test.
+	 * Atualiza o contador de tentativas. Se o número máximo for atingido, o cliente será banido.
+	 * @param address O {@link InetAddress} a ser testado.
 	 */
 	private void recordFailedAttempt(InetAddress address)
 	{
 		final int attempts = _failedAttempts.merge(address, 1, (k, v) -> k + v);
 		if (attempts >= Config.LOGIN_TRY_BEFORE_BAN)
 		{
-			// Add a ban for the given InetAddress.
+			// Adiciona um ban para o endereço IP fornecido.
 			IpBanManager.getInstance().addBanForAddress(address, Config.LOGIN_BLOCK_AFTER_BAN * 1000L);
 			
-			// Clear all failed login attempts.
+			// Limpa todas as tentativas de login falhas para este IP.
 			_failedAttempts.remove(address);
 			
-			LOGGER.info("IP address: {} has been banned due to too many login attempts.", address.getHostAddress());
+			LOGGER.info("O endereço de IP: {} foi banido devido a muitas tentativas de login.", address.getHostAddress());
 		}
 	}
 	
 	/**
-	 * If passwords don't match, register the failed attempt and eventually ban the {@link InetAddress} if AUTO_CREATE_ACCOUNTS is off.
-	 * @param client : The {@link LoginClient} to eventually ban after multiple failed attempts.
-	 * @param login : The {@link String} login to test.
-	 * @param password : The {@link String} password to test.
+	 * Se as senhas não corresponderem, registra a tentativa falha e, eventualmente, bane o {@link InetAddress} se AUTO_CREATE_ACCOUNTS estiver desativado.
+	 * @param client O {@link LoginClient} a ser eventualmente banido após várias tentativas falhas.
+	 * @param login O login {@link String} a ser testado.
+	 * @param password A senha {@link String} a ser testada.
 	 */
 	public void retrieveAccountInfo(LoginClient client, String login, String password)
 	{
 		final InetAddress addr = client.getConnection().getInetAddress();
 		final long currentTime = System.currentTimeMillis();
 		
-		// Retrieve or create (if auto-create is on) an Account based on given login and password.
+		// Recupera ou cria (se a criação automática estiver ativada) uma conta com base no login e senha fornecidos.
 		Account account = AccountTable.getInstance().getAccount(login);
 		
 		if (account == null)
 		{
-			// Auto-create is off, add a failed attempt.
+			// A criação automática está desativada, adiciona uma tentativa falha.
 			if (!Config.AUTO_CREATE_ACCOUNTS)
 			{
 				recordFailedAttempt(addr);
@@ -148,7 +167,7 @@ public class LoginController
 				return;
 			}
 			
-			// Generate an Account and feed variable.
+			// Gera uma conta e alimenta a variável.
 			account = AccountTable.getInstance().createAccount(login, BCrypt.hashPw(password), currentTime);
 			if (account == null)
 			{
@@ -156,14 +175,14 @@ public class LoginController
 				return;
 			}
 			
-			// Clear all failed login attempts.
+			// Limpa todas as tentativas de login falhas.
 			_failedAttempts.remove(addr);
 			
-			LOGGER.info("Auto created account '{}'.", login);
+			LOGGER.info("Conta '{}' criada automaticamente.", login);
 		}
 		else
 		{
-			// Check if that an unencrypted password matches one that has previously been hashed.
+			// Verifica se a senha não criptografada corresponde a uma que foi previamente hasheada.
 			if (!BCrypt.checkPw(password, account.getPassword()))
 			{
 				recordFailedAttempt(addr);
@@ -171,10 +190,10 @@ public class LoginController
 				return;
 			}
 			
-			// Clear all failed login attempts.
+			// Limpa todas as tentativas de login falhas.
 			_failedAttempts.remove(addr);
 			
-			// Refresh current time of the account.
+			// Atualiza a hora do último acesso da conta.
 			if (!AccountTable.getInstance().setAccountLastTime(login, currentTime))
 			{
 				client.close(LoginFail.REASON_ACCESS_FAILED);
@@ -182,14 +201,14 @@ public class LoginController
 			}
 		}
 		
-		// Account is banned, return.
+		// A conta está banida, retorna.
 		if (account.getAccessLevel() < 0)
 		{
 			client.close(new AccountKicked(AccountKickedReason.PERMANENTLY_BANNED));
 			return;
 		}
 		
-		// Account is already set on ls, return.
+		// A conta já está no login server, retorna.
 		final GameServerInfo gsi = getAccountOnGameServer(login);
 		if (gsi != null)
 		{
@@ -201,7 +220,7 @@ public class LoginController
 			return;
 		}
 		
-		// Account is already set on gs, close the previous client.
+		// A conta já está no game server, fecha o cliente anterior.
 		final LoginClient oldClient = _clients.putIfAbsent(login, client);
 		if (oldClient != null)
 		{
@@ -219,12 +238,20 @@ public class LoginController
 		client.sendPacket((Config.SHOW_LICENCE) ? new LoginOk(client.getSessionKey()) : new ServerList(account));
 	}
 	
+	/**
+	 * @param account O nome da conta.
+	 * @return A SessionKey para a conta especificada, ou null se não houver.
+	 */
 	public SessionKey getKeyForAccount(String account)
 	{
 		final LoginClient client = _clients.get(account);
 		return (client == null) ? null : client.getSessionKey();
 	}
 	
+	/**
+	 * @param account O nome da conta.
+	 * @return As informações do GameServer onde a conta está, ou null se não estiver em nenhum.
+	 */
 	public GameServerInfo getAccountOnGameServer(String account)
 	{
 		for (GameServerInfo gsi : GameServerManager.getInstance().getRegisteredGameServers().values())
@@ -237,13 +264,16 @@ public class LoginController
 	}
 	
 	/**
-	 * @return One of the cached {@link ScrambledKeyPair}s to communicate with Login Clients.
+	 * @return Um dos pares de chaves {@link ScrambledKeyPair} em cache para se comunicar com os Login Clients.
 	 */
 	public ScrambledKeyPair getScrambledRSAKeyPair()
 	{
 		return Rnd.get(_keyPairs);
 	}
 	
+	/**
+	 * Thread para limpar conexões de clientes que estão inativos por muito tempo.
+	 */
 	private class PurgeThread extends Thread
 	{
 		public PurgeThread()
@@ -268,7 +298,7 @@ public class LoginController
 				}
 				catch (InterruptedException e)
 				{
-					LOGGER.info("PurgeThread was interrupted.", e);
+					LOGGER.info("A PurgeThread foi interrompida.", e);
 					return;
 				}
 			}

@@ -12,23 +12,27 @@ import java.util.stream.Stream;
 
 import net.sf.l2j.commons.logging.CLogger;
 
+/**
+ * Gerencia a lista de endereços IP banidos.
+ */
 public class IpBanManager
 {
 	private static final CLogger LOGGER = new CLogger(IpBanManager.class.getName());
 	
+	// Mapa de IPs banidos e o tempo de expiração do ban. 0 = permanente.
 	private final Map<InetAddress, Long> _bannedIps = new ConcurrentHashMap<>();
 	
 	protected IpBanManager()
 	{
-		// Load file.
+		// Carrega o arquivo de IPs banidos.
 		final Path file = Paths.get("config", "banned_ips.properties");
 		if (file == null)
 		{
-			LOGGER.warn("banned_ips.properties is missing. Ban listing is skipped.");
+			LOGGER.warn("banned_ips.properties não encontrado. O carregamento da lista de banidos foi ignorado.");
 			return;
 		}
 		
-		// Load each line, dropping the ones containing #.
+		// Carrega cada linha, ignorando as que contêm #.
 		try (Stream<String> stream = Files.lines(file))
 		{
 			stream.filter(l -> !l.contains("#")).forEach(l ->
@@ -39,15 +43,15 @@ public class IpBanManager
 				}
 				catch (UnknownHostException e)
 				{
-					LOGGER.error("Invalid ban address ({}).", l, e);
+					LOGGER.error("Endereço de banimento inválido ({}).", l, e);
 				}
 			});
 		}
 		catch (IOException e)
 		{
-			LOGGER.error("Error while reading banned_ips.properties.", e);
+			LOGGER.error("Erro ao ler o arquivo banned_ips.properties.", e);
 		}
-		LOGGER.info("Loaded {} banned IP(s).", _bannedIps.size());
+		LOGGER.info("Carregados {} IP(s) banidos.", _bannedIps.size());
 	}
 	
 	public Map<InetAddress, Long> getBannedIps()
@@ -56,13 +60,13 @@ public class IpBanManager
 	}
 	
 	/**
-	 * Add the {@link InetAddress} set as parameter to the ban list, with the given duration.
-	 * @param address : The {@link InetAddress} to ban.
-	 * @param duration : The timer in milliseconds. 0 means it is permanently banned.
+	 * Adiciona o {@link InetAddress} passado como parâmetro à lista de banidos, com a duração fornecida.
+	 * @param address O {@link InetAddress} a ser banido.
+	 * @param duration A duração em milissegundos. 0 significa que o banimento é permanente.
 	 */
 	public void addBanForAddress(InetAddress address, long duration)
 	{
-		// Add current time, but only if parameter is > 0.
+		// Adiciona o tempo atual, mas apenas se o parâmetro for > 0.
 		if (duration > 0)
 			duration += System.currentTimeMillis();
 		
@@ -70,10 +74,10 @@ public class IpBanManager
 	}
 	
 	/**
-	 * @param address : The {@link InetAddress} to test.
-	 * @return True if the {@link InetAddress} set as parameter is actually banned, otherwise false.<br>
+	 * @param address O {@link InetAddress} a ser testado.
+	 * @return True se o {@link InetAddress} estiver banido, caso contrário, false.<br>
 	 *         <br>
-	 *         If the timer exists, compare with actual time. If too old, remove the ban. 0 timers never expire.
+	 *         Se o tempo de banimento existir, compara com o tempo atual. Se for antigo, remove o banimento. Timers com valor 0 nunca expiram.
 	 */
 	public boolean isBannedAddress(InetAddress address)
 	{
@@ -83,12 +87,13 @@ public class IpBanManager
 		final Long time = _bannedIps.get(address);
 		if (time != null)
 		{
+			// Se o tempo for maior que 0 e menor que o tempo atual, o banimento expirou.
 			if (time > 0 && time < System.currentTimeMillis())
 			{
-				// Remove the ban from memory.
+				// Remove o banimento da memória.
 				_bannedIps.remove(address);
 				
-				LOGGER.info("Removed expired ip address ban {}.", address.getHostAddress());
+				LOGGER.info("Removido banimento de endereço de IP expirado {}.", address.getHostAddress());
 				return false;
 			}
 			return true;

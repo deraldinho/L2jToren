@@ -19,8 +19,8 @@ import net.sf.l2j.gameserver.model.holder.BuffSkillHolder;
 import net.sf.l2j.gameserver.model.holder.IntIntHolder;
 
 /**
- * This class contains global server configuration.<br>
- * It has static final fields initialized from configuration files.
+ * Esta classe contém as configurações globais do servidor.<br>
+ * Ela possui campos estáticos finais inicializados a partir dos arquivos de configuração.
  */
 public final class Config
 {
@@ -31,6 +31,7 @@ public final class Config
 	
 	private static final CLogger LOGGER = new CLogger(Config.class.getName());
 	
+	// Arquivos de configuração
 	private static final String CLANS_FILE = "./config/clans.properties";
 	private static final String EVENTS_FILE = "./config/events.properties";
 	public static final String GEOENGINE_FILE = "./config/geoengine.properties";
@@ -45,535 +46,536 @@ public final class Config
 	public static final String VIP_FILE = "./config/vip.properties";
 	
 	// --------------------------------------------------
-	// Clans settings
+	// Configurações de Clãs
 	// --------------------------------------------------
 	
-	/** Clans */
-	public static int CLAN_JOIN_DAYS;
-	public static int CLAN_CREATE_DAYS;
-	public static int CLAN_DISSOLVE_DAYS;
-	public static int ALLY_JOIN_DAYS_WHEN_LEAVED;
-	public static int ALLY_JOIN_DAYS_WHEN_DISMISSED;
-	public static int ACCEPT_CLAN_DAYS_WHEN_DISMISSED;
-	public static int CREATE_ALLY_DAYS_WHEN_DISSOLVED;
-	public static int MAX_NUM_OF_CLANS_IN_ALLY;
-	public static int CLAN_MEMBERS_FOR_WAR;
-	public static int CLAN_WAR_PENALTY_WHEN_ENDED;
-	public static boolean MEMBERS_CAN_WITHDRAW_FROM_CLANWH;
+	/** Clãs */
+	public static int CLAN_JOIN_DAYS; // Dias para poder entrar em um novo clã
+	public static int CLAN_CREATE_DAYS; // Dias para poder criar um novo clã
+	public static int CLAN_DISSOLVE_DAYS; // Dias para dissolver um clã
+	public static int ALLY_JOIN_DAYS_WHEN_LEAVED; // Dias para entrar em uma nova aliança após sair de uma
+	public static int ALLY_JOIN_DAYS_WHEN_DISMISSED; // Dias para entrar em uma nova aliança após ser expulso de uma
+	public static int ACCEPT_CLAN_DAYS_WHEN_DISMISSED; // Dias para aceitar um novo clã em uma aliança após expulsar um
+	public static int CREATE_ALLY_DAYS_WHEN_DISSOLVED; // Dias para criar uma nova aliança após dissolver uma
+	public static int MAX_NUM_OF_CLANS_IN_ALLY; // Número máximo de clãs em uma aliança
+	public static int CLAN_MEMBERS_FOR_WAR; // Membros necessários para declarar guerra
+	public static int CLAN_WAR_PENALTY_WHEN_ENDED; // Penalidade em dias para declarar guerra novamente ao mesmo clã
+	public static boolean MEMBERS_CAN_WITHDRAW_FROM_CLANWH; // Se os membros podem retirar itens do armazém do clã
 	
 	/** Manor */
-	public static int MANOR_REFRESH_TIME;
-	public static int MANOR_REFRESH_MIN;
-	public static int MANOR_APPROVE_TIME;
-	public static int MANOR_APPROVE_MIN;
-	public static int MANOR_MAINTENANCE_MIN;
-	public static int MANOR_SAVE_PERIOD_RATE;
+	public static int MANOR_REFRESH_TIME; // Hora de atualização do Manor
+	public static int MANOR_REFRESH_MIN; // Minuto de atualização do Manor
+	public static int MANOR_APPROVE_TIME; // Hora de aprovação do próximo período do Manor
+	public static int MANOR_APPROVE_MIN; // Minuto de aprovação do próximo período do Manor
+	public static int MANOR_MAINTENANCE_MIN; // Duração da manutenção do Manor em minutos
+	public static int MANOR_SAVE_PERIOD_RATE; // Frequência de salvamento do período do Manor em horas
 	
 	// --------------------------------------------------
-	// Events settings
+	// Configurações de Eventos
 	// --------------------------------------------------
 	
-	/** Olympiad */
-	public static int OLY_START_TIME;
-	public static int OLY_MIN;
-	public static long OLY_CPERIOD;
-	public static long OLY_BATTLE;
-	public static int OLY_WAIT_TIME;
-	public static int OLY_WAIT_BATTLE;
-	public static int OLY_WAIT_END;
-	public static int OLY_START_POINTS;
-	public static int OLY_WEEKLY_POINTS;
-	public static int OLY_MIN_MATCHES;
-	public static int OLY_CLASSED;
-	public static int OLY_NONCLASSED;
-	public static IntIntHolder[] OLY_CLASSED_REWARD;
-	public static IntIntHolder[] OLY_NONCLASSED_REWARD;
-	public static int OLY_GP_PER_POINT;
-	public static int OLY_HERO_POINTS;
-	public static int OLY_MAX_POINTS;
-	public static int OLY_DIVIDER_CLASSED;
-	public static int OLY_DIVIDER_NON_CLASSED;
-	public static boolean OLY_ANNOUNCE_GAMES;
+	/** Olimpíadas */
+	public static int OLY_START_TIME; // Hora de início da Olimpíada
+	public static int OLY_MIN; // Minuto de início da Olimpíada
+	public static long OLY_CPERIOD; // Período de competição da Olimpíada
+	public static long OLY_BATTLE; // Duração da batalha da Olimpíada
+	public static int OLY_WAIT_TIME; // Tempo de espera antes de ser teleportado para a arena
+	public static int OLY_WAIT_BATTLE; // Tempo de espera antes do início da batalha
+	public static int OLY_WAIT_END; // Tempo de espera antes de ser teleportado de volta para a cidade
+	public static int OLY_START_POINTS; // Pontos iniciais da Olimpíada
+	public static int OLY_WEEKLY_POINTS; // Pontos semanais da Olimpíada
+	public static int OLY_MIN_MATCHES; // Mínimo de partidas para ser classificado
+	public static int OLY_CLASSED; // Mínimo de participantes para jogos com base em classe
+	public static int OLY_NONCLASSED; // Mínimo de participantes para jogos sem base em classe
+	public static IntIntHolder[] OLY_CLASSED_REWARD; // Recompensa para jogos com base em classe
+	public static IntIntHolder[] OLY_NONCLASSED_REWARD; // Recompensa para jogos sem base em classe
+	public static int OLY_GP_PER_POINT; // Taxa de troca de pontos por item de recompensa
+	public static int OLY_HERO_POINTS; // Pontos de herói para o clã
+	public static int OLY_MAX_POINTS; // Máximo de pontos que um jogador pode ganhar/perder em uma partida
+	public static int OLY_DIVIDER_CLASSED; // Divisor de pontos em jogos com base em classe
+	public static int OLY_DIVIDER_NON_CLASSED; // Divisor de pontos em jogos sem base em classe
+	public static boolean OLY_ANNOUNCE_GAMES; // Anunciar o início de cada luta da Olimpíada
 	
-	/** SevenSigns Festival */
-	public static boolean SEVEN_SIGNS_BYPASS_PREREQUISITES;
-	public static int FESTIVAL_MIN_PLAYER;
-	public static int MAXIMUM_PLAYER_CONTRIB;
-	public static long FESTIVAL_MANAGER_START;
-	public static long FESTIVAL_LENGTH;
-	public static long FESTIVAL_CYCLE_LENGTH;
-	public static long FESTIVAL_FIRST_SPAWN;
-	public static long FESTIVAL_FIRST_SWARM;
-	public static long FESTIVAL_SECOND_SPAWN;
-	public static long FESTIVAL_SECOND_SWARM;
-	public static long FESTIVAL_CHEST_SPAWN;
+	/** Festival Seven Signs */
+	public static boolean SEVEN_SIGNS_BYPASS_PREREQUISITES; // Se True, qualquer um pode se juntar a qualquer lado do Seven Signs
+	public static int FESTIVAL_MIN_PLAYER; // Mínimo de jogadores para participar do Festival
+	public static int MAXIMUM_PLAYER_CONTRIB; // Contribuição máxima por jogador durante o festival
+	public static long FESTIVAL_MANAGER_START; // Início do gerenciador do festival
+	public static long FESTIVAL_LENGTH; // Duração do festival
+	public static long FESTIVAL_CYCLE_LENGTH; // Duração do ciclo do festival
+	public static long FESTIVAL_FIRST_SPAWN; // Primeiro spawn do festival
+	public static long FESTIVAL_FIRST_SWARM; // Primeiro enxame do festival
+	public static long FESTIVAL_SECOND_SPAWN; // Segundo spawn do festival
+	public static long FESTIVAL_SECOND_SWARM; // Segundo enxame do festival
+	public static long FESTIVAL_CHEST_SPAWN; // Spawn do baú do festival
 	
 	/** Four Sepulchers */
-	public static int FS_PARTY_MEMBER_COUNT;
+	public static int FS_PARTY_MEMBER_COUNT; // Quantidade de membros no grupo para entrar no Four Sepulchers
 	
-	/** dimensional rift */
-	public static int RIFT_MIN_PARTY_SIZE;
-	public static int RIFT_AUTO_JUMPS_TIME_MIN;
-	public static int RIFT_AUTO_JUMPS_TIME_RND;
-	public static int RIFT_ENTER_COST_RECRUIT;
-	public static int RIFT_ENTER_COST_SOLDIER;
-	public static int RIFT_ENTER_COST_OFFICER;
-	public static int RIFT_ENTER_COST_CAPTAIN;
-	public static int RIFT_ENTER_COST_COMMANDER;
-	public static int RIFT_ENTER_COST_HERO;
-	public static int RIFT_ANAKAZEL_PORT_CHANCE;
+	/** Dimensional Rift */
+	public static int RIFT_MIN_PARTY_SIZE; // Tamanho mínimo do grupo para entrar no Rift
+	public static int RIFT_AUTO_JUMPS_TIME_MIN; // Tempo mínimo entre saltos automáticos em minutos
+	public static int RIFT_AUTO_JUMPS_TIME_RND; // Tempo aleatório para saltos automáticos em segundos
+	public static int RIFT_ENTER_COST_RECRUIT; // Custo de entrada para recrutas
+	public static int RIFT_ENTER_COST_SOLDIER; // Custo de entrada para soldados
+	public static int RIFT_ENTER_COST_OFFICER; // Custo de entrada para oficiais
+	public static int RIFT_ENTER_COST_CAPTAIN; // Custo de entrada para capitães
+	public static int RIFT_ENTER_COST_COMMANDER; // Custo de entrada para comandantes
+	public static int RIFT_ENTER_COST_HERO; // Custo de entrada para heróis
+	public static int RIFT_ANAKAZEL_PORT_CHANCE; // Chance de ser teleportado para o RB Anakazel
 	
-	/** Lottery */
-	public static int LOTTERY_PRIZE;
-	public static int LOTTERY_TICKET_PRICE;
-	public static double LOTTERY_5_NUMBER_RATE;
-	public static double LOTTERY_4_NUMBER_RATE;
-	public static double LOTTERY_3_NUMBER_RATE;
-	public static int LOTTERY_2_AND_1_NUMBER_PRIZE;
+	/** Loteria */
+	public static int LOTTERY_PRIZE; // Prêmio inicial da loteria
+	public static int LOTTERY_TICKET_PRICE; // Preço do bilhete da loteria
+	public static double LOTTERY_5_NUMBER_RATE; // Taxa para 5 números corretos
+	public static double LOTTERY_4_NUMBER_RATE; // Taxa para 4 números corretos
+	public static double LOTTERY_3_NUMBER_RATE; // Taxa para 3 números corretos
+	public static int LOTTERY_2_AND_1_NUMBER_PRIZE; // Prêmio para 2 ou 1 número correto
 	
-	/** Fishing tournament */
-	public static boolean ALLOW_FISH_CHAMPIONSHIP;
-	public static int FISH_CHAMPIONSHIP_REWARD_ITEM;
-	public static int FISH_CHAMPIONSHIP_REWARD_1;
-	public static int FISH_CHAMPIONSHIP_REWARD_2;
-	public static int FISH_CHAMPIONSHIP_REWARD_3;
-	public static int FISH_CHAMPIONSHIP_REWARD_4;
-	public static int FISH_CHAMPIONSHIP_REWARD_5;
+	/** Torneio de Pesca */
+	public static boolean ALLOW_FISH_CHAMPIONSHIP; // Permitir o torneio de pesca
+	public static int FISH_CHAMPIONSHIP_REWARD_ITEM; // Item de recompensa do torneio de pesca
+	public static int FISH_CHAMPIONSHIP_REWARD_1; // Recompensa para o 1º lugar
+	public static int FISH_CHAMPIONSHIP_REWARD_2; // Recompensa para o 2º lugar
+	public static int FISH_CHAMPIONSHIP_REWARD_3; // Recompensa para o 3º lugar
+	public static int FISH_CHAMPIONSHIP_REWARD_4; // Recompensa para o 4º lugar
+	public static int FISH_CHAMPIONSHIP_REWARD_5; // Recompensa para o 5º lugar
 	
 	// --------------------------------------------------
 	// GeoEngine
 	// --------------------------------------------------
 	
 	/** Geodata */
-	public static String GEODATA_PATH;
-	public static GeoType GEODATA_TYPE;
+	public static String GEODATA_PATH; // Caminho para os arquivos de geodata
+	public static GeoType GEODATA_TYPE; // Tipo de arquivos de geodata
 	
-	/** Movement */
-	public static int MAX_GEOPATH_FAIL_COUNT;
+	/** Movimento */
+	public static int MAX_GEOPATH_FAIL_COUNT; // Máximo de falhas de geopath antes de um aviso
 	
-	/** Path checking */
-	public static int PART_OF_CHARACTER_HEIGHT;
-	public static int MAX_OBSTACLE_HEIGHT;
+	/** Verificação de Caminho */
+	public static int PART_OF_CHARACTER_HEIGHT; // Porcentagem da altura do personagem para a linha de visão
+	public static int MAX_OBSTACLE_HEIGHT; // Altura máxima de um obstáculo
 	
-	/** Path finding */
-	public static int MOVE_WEIGHT;
-	public static int MOVE_WEIGHT_DIAG;
-	public static int OBSTACLE_WEIGHT;
-	public static int OBSTACLE_WEIGHT_DIAG;
-	public static int HEURISTIC_WEIGHT;
-	public static int MAX_ITERATIONS;
+	/** Pathfinding */
+	public static int MOVE_WEIGHT; // Peso do movimento axial
+	public static int MOVE_WEIGHT_DIAG; // Peso do movimento diagonal
+	public static int OBSTACLE_WEIGHT; // Peso de um obstáculo
+	public static int OBSTACLE_WEIGHT_DIAG; // Peso de um obstáculo na diagonal
+	public static int HEURISTIC_WEIGHT; // Peso da heurística
+	public static int MAX_ITERATIONS; // Máximo de iterações do pathfinding
 	
 	// --------------------------------------------------
 	// HexID
 	// --------------------------------------------------
 	
-	public static int SERVER_ID;
-	public static byte[] HEX_ID;
+	public static int SERVER_ID; // ID do servidor
+	public static byte[] HEX_ID; // ID hexadecimal do servidor
 	
 	// --------------------------------------------------
 	// Loginserver
 	// --------------------------------------------------
 	
-	public static String LOGINSERVER_HOSTNAME;
-	public static int LOGINSERVER_PORT;
+	public static String LOGINSERVER_HOSTNAME; // Hostname do servidor de login
+	public static int LOGINSERVER_PORT; // Porta do servidor de login
 	
-	public static int LOGIN_TRY_BEFORE_BAN;
-	public static int LOGIN_BLOCK_AFTER_BAN;
-	public static boolean ACCEPT_NEW_GAMESERVER;
+	public static int LOGIN_TRY_BEFORE_BAN; // Tentativas de login antes de banir o IP
+	public static int LOGIN_BLOCK_AFTER_BAN; // Tempo de bloqueio após o banimento
+	public static boolean ACCEPT_NEW_GAMESERVER; // Aceitar novos servidores de jogo
 	
-	public static boolean SHOW_LICENCE;
+	public static boolean SHOW_LICENCE; // Mostrar a licença ao fazer login
 	
-	public static boolean AUTO_CREATE_ACCOUNTS;
+	public static boolean AUTO_CREATE_ACCOUNTS; // Criar contas automaticamente
 	
-	public static boolean FLOOD_PROTECTION;
-	public static int FAST_CONNECTION_LIMIT;
-	public static int NORMAL_CONNECTION_TIME;
-	public static int FAST_CONNECTION_TIME;
-	public static int MAX_CONNECTION_PER_IP;
+	public static boolean FLOOD_PROTECTION; // Ativar proteção contra flood
+	public static int FAST_CONNECTION_LIMIT; // Limite de conexões rápidas
+	public static int NORMAL_CONNECTION_TIME; // Tempo de conexão normal
+	public static int FAST_CONNECTION_TIME; // Tempo de conexão rápida
+	public static int MAX_CONNECTION_PER_IP; // Máximo de conexões por IP
 	
 	// --------------------------------------------------
-	// NPCs / Monsters
+	// NPCs / Monstros
 	// --------------------------------------------------
 	
 	/** Spawn */
-	public static double SPAWN_MULTIPLIER;
-	public static String[] SPAWN_EVENTS;
+	public static double SPAWN_MULTIPLIER; // Multiplicador de spawn
+	public static String[] SPAWN_EVENTS; // Eventos de spawn
 	
 	/** Class Master */
-	public static boolean ALLOW_ENTIRE_TREE;
-	public static ClassMasterSettings CLASS_MASTER_SETTINGS;
+	public static boolean ALLOW_ENTIRE_TREE; // Permitir que o Class Master mude para qualquer classe da árvore
+	public static ClassMasterSettings CLASS_MASTER_SETTINGS; // Configurações do Class Master
 	
-	/** Wedding Manager */
-	public static int WEDDING_PRICE;
-	public static boolean WEDDING_SAMESEX;
-	public static boolean WEDDING_FORMALWEAR;
+	/** Gerenciador de Casamento */
+	public static int WEDDING_PRICE; // Preço do casamento
+	public static boolean WEDDING_SAMESEX; // Permitir casamento entre o mesmo sexo
+	public static boolean WEDDING_FORMALWEAR; // Exigir traje formal para o casamento
 	
-	/** Scheme Buffer */
-	public static int BUFFER_MAX_SCHEMES;
-	public static int BUFFER_STATIC_BUFF_COST;
-	public static String FIGHTER_SET;
-	public static int[] FIGHTER_SET_LIST;
-	public static String MAGE_SET;
-	public static int[] MAGE_SET_LIST;
-	public static int BUFFER_MAX_SKILLS;
-	public static String BUFFER_BUFFS;
-	public static Map<Integer, BuffSkillHolder> BUFFER_BUFFLIST;
-	public static boolean RESTRICT_USE_BUFFER_ON_PVPFLAG;
-	public static boolean RESTRICT_USE_BUFFER_IN_COMBAT;
+	/** Buffer de Esquema */
+	public static int BUFFER_MAX_SCHEMES; // Máximo de esquemas de buffer por personagem
+	public static int BUFFER_STATIC_BUFF_COST; // Custo estático por buff
+	public static String FIGHTER_SET; // Lista de buffs para guerreiros
+	public static int[] FIGHTER_SET_LIST; // Lista de buffs para guerreiros
+	public static String MAGE_SET; // Lista de buffs para magos
+	public static int[] MAGE_SET_LIST; // Lista de buffs para magos
+	public static int BUFFER_MAX_SKILLS; // Máximo de skills por esquema
+	public static String BUFFER_BUFFS; // Lista de buffs do buffer
+	public static Map<Integer, BuffSkillHolder> BUFFER_BUFFLIST; // Mapa de buffs do buffer
+	public static boolean RESTRICT_USE_BUFFER_ON_PVPFLAG; // Restringir o uso do buffer com a bandeira de PvP
+	public static boolean RESTRICT_USE_BUFFER_IN_COMBAT; // Restringir o uso do buffer em combate
 
-	public static List<Integer> FIGHTER_SKILL_LIST;
-	public static List<Integer> MAGE_SKILL_LIST;
+	public static List<Integer> FIGHTER_SKILL_LIST; // Lista de skills para guerreiros
+	public static List<Integer> MAGE_SKILL_LIST; // Lista de skills para magos
 
-	public static int PVOTE_BUFF_ITEM_ID;
-	public static int PVOTE_BUFF_ITEM_COUNT;
+	public static int PVOTE_BUFF_ITEM_ID; // ID do item de recompensa por voto
+	public static int PVOTE_BUFF_ITEM_COUNT; // Quantidade do item de recompensa por voto
 	
-	/** Misc */
-	public static boolean FREE_TELEPORT;
-	public static boolean MOB_AGGRO_IN_PEACEZONE;
-	public static boolean SHOW_NPC_LVL;
-	public static boolean SHOW_NPC_CREST;
-	public static boolean SHOW_SUMMON_CREST;
+	/** Diversos */
+	public static boolean FREE_TELEPORT; // Teleporte gratuito
+	public static boolean MOB_AGGRO_IN_PEACEZONE; // Agressividade de monstros em zonas de paz
+	public static boolean SHOW_NPC_LVL; // Mostrar o nível dos NPCs
+	public static boolean SHOW_NPC_CREST; // Mostrar o emblema do clã nos NPCs
+	public static boolean SHOW_SUMMON_CREST; // Mostrar o emblema do clã nos summons
 	
-	/** Wyvern Manager */
-	public static int WYVERN_REQUIRED_LEVEL;
-	public static int WYVERN_REQUIRED_CRYSTALS;
+	/** Gerenciador de Wyvern */
+	public static int WYVERN_REQUIRED_LEVEL; // Nível necessário do Strider para se transformar em Wyvern
+	public static int WYVERN_REQUIRED_CRYSTALS; // Cristais necessários para a transformação
 	
 	/** Raid Boss */
-	public static double RAID_HP_REGEN_MULTIPLIER;
-	public static double RAID_MP_REGEN_MULTIPLIER;
-	public static double RAID_DEFENCE_MULTIPLIER;
+	public static double RAID_HP_REGEN_MULTIPLIER; // Multiplicador de regeneração de HP de Raid Boss
+	public static double RAID_MP_REGEN_MULTIPLIER; // Multiplicador de regeneração de MP de Raid Boss
+	public static double RAID_DEFENCE_MULTIPLIER; // Multiplicador de defesa de Raid Boss
 	
-	public static boolean RAID_DISABLE_CURSE;
+	public static boolean RAID_DISABLE_CURSE; // Desativar a maldição de nível de Raid Boss
 	
 	/** Grand Boss */
-	public static int WAIT_TIME_ANTHARAS;
-	public static int WAIT_TIME_VALAKAS;
-	public static int WAIT_TIME_FRINTEZZA;
+	public static int WAIT_TIME_ANTHARAS; // Tempo de espera para o Antharas
+	public static int WAIT_TIME_VALAKAS; // Tempo de espera para o Valakas
+	public static int WAIT_TIME_FRINTEZZA; // Tempo de espera para o Frintezza
 	
-	/** AI */
-	public static boolean GUARD_ATTACK_AGGRO_MOB;
-	public static int RANDOM_WALK_RATE;
-	public static int MAX_DRIFT_RANGE;
-	public static int DEFAULT_SEE_RANGE;
+	/** IA */
+	public static boolean GUARD_ATTACK_AGGRO_MOB; // Guardas atacam monstros agressivos
+	public static int RANDOM_WALK_RATE; // Taxa de caminhada aleatória
+	public static int MAX_DRIFT_RANGE; // Distância máxima de deriva do spawn
+	public static int DEFAULT_SEE_RANGE; // Alcance de visão padrão
 	
 	// --------------------------------------------------
-	// Players
+	// Jogadores
 	// --------------------------------------------------
 	
-	/** Misc */
-	public static boolean EFFECT_CANCELING;
-	public static double HP_REGEN_MULTIPLIER;
-	public static double MP_REGEN_MULTIPLIER;
-	public static double CP_REGEN_MULTIPLIER;
-	public static int PLAYER_SPAWN_PROTECTION;
-	public static int PLAYER_FAKEDEATH_UP_PROTECTION;
-	public static double RESPAWN_RESTORE_HP;
-	public static int MAX_PVTSTORE_SLOTS_DWARF;
-	public static int MAX_PVTSTORE_SLOTS_OTHER;
-	public static boolean DEEPBLUE_DROP_RULES;
-	public static boolean ALLOW_DELEVEL;
-	public static int DEATH_PENALTY_CHANCE;
+	/** Diversos */
+	public static boolean EFFECT_CANCELING; // Cancelar efeitos de menor prioridade
+	public static double HP_REGEN_MULTIPLIER; // Multiplicador de regeneração de HP
+	public static double MP_REGEN_MULTIPLIER; // Multiplicador de regeneração de MP
+	public static double CP_REGEN_MULTIPLIER; // Multiplicador de regeneração de CP
+	public static int PLAYER_SPAWN_PROTECTION; // Proteção de spawn do jogador em segundos
+	public static int PLAYER_FAKEDEATH_UP_PROTECTION; // Proteção ao se levantar de fake death em segundos
+	public static double RESPAWN_RESTORE_HP; // Porcentagem de HP restaurado ao reviver
+	public static int MAX_PVTSTORE_SLOTS_DWARF; // Máximo de slots de loja privada para anões
+	public static int MAX_PVTSTORE_SLOTS_OTHER; // Máximo de slots de loja privada para outras raças
+	public static boolean DEEPBLUE_DROP_RULES; // Regras de drop para monstros "deep blue"
+	public static boolean ALLOW_DELEVEL; // Permitir a perda de nível
+	public static int DEATH_PENALTY_CHANCE; // Chance de penalidade de morte
 	
-	/** Inventory & WH */
-	public static int INVENTORY_MAXIMUM_NO_DWARF;
-	public static int INVENTORY_MAXIMUM_DWARF;
-	public static int INVENTORY_MAXIMUM_PET;
-	public static int MAX_ITEM_IN_PACKET;
-	public static double WEIGHT_LIMIT;
-	public static int WAREHOUSE_SLOTS_NO_DWARF;
-	public static int WAREHOUSE_SLOTS_DWARF;
-	public static int WAREHOUSE_SLOTS_CLAN;
-	public static int FREIGHT_SLOTS;
-	public static boolean REGION_BASED_FREIGHT;
-	public static int FREIGHT_PRICE;
+	/** Inventário e Armazém */
+	public static int INVENTORY_MAXIMUM_NO_DWARF; // Máximo de slots de inventário para não anões
+	public static int INVENTORY_MAXIMUM_DWARF; // Máximo de slots de inventário para anões
+	public static int INVENTORY_MAXIMUM_PET; // Máximo de slots de inventário para pets
+	public static int MAX_ITEM_IN_PACKET; // Máximo de itens em um pacote
+	public static double WEIGHT_LIMIT; // Limite de peso
+	public static int WAREHOUSE_SLOTS_NO_DWARF; // Slots de armazém para não anões
+	public static int WAREHOUSE_SLOTS_DWARF; // Slots de armazém para anões
+	public static int WAREHOUSE_SLOTS_CLAN; // Slots de armazém do clã
+	public static int FREIGHT_SLOTS; // Slots de frete
+	public static boolean REGION_BASED_FREIGHT; // Frete baseado em região
+	public static int FREIGHT_PRICE; // Preço do frete
 	
-	/** Enchant */
-	public static double ENCHANT_CHANCE_WEAPON_MAGIC;
-	public static double ENCHANT_CHANCE_WEAPON_MAGIC_15PLUS;
-	public static double ENCHANT_CHANCE_WEAPON_NONMAGIC;
-	public static double ENCHANT_CHANCE_WEAPON_NONMAGIC_15PLUS;
-	public static double ENCHANT_CHANCE_ARMOR;
-	public static int ENCHANT_MAX_WEAPON;
-	public static int ENCHANT_MAX_ARMOR;
-	public static int ENCHANT_SAFE_MAX;
-	public static int ENCHANT_SAFE_MAX_FULL;
+	/** Encantamento */
+	public static double ENCHANT_CHANCE_WEAPON_MAGIC; // Chance de encantar arma mágica
+	public static double ENCHANT_CHANCE_WEAPON_MAGIC_15PLUS; // Chance de encantar arma mágica +15 ou mais
+	public static double ENCHANT_CHANCE_WEAPON_NONMAGIC; // Chance de encantar arma não mágica
+	public static double ENCHANT_CHANCE_WEAPON_NONMAGIC_15PLUS; // Chance de encantar arma não mágica +15 ou mais
+	public static double ENCHANT_CHANCE_ARMOR; // Chance de encantar armadura
+	public static int ENCHANT_MAX_WEAPON; // Encantamento máximo para armas
+	public static int ENCHANT_MAX_ARMOR; // Encantamento máximo para armaduras
+	public static int ENCHANT_SAFE_MAX; // Encantamento seguro máximo
+	public static int ENCHANT_SAFE_MAX_FULL; // Encantamento seguro máximo para armaduras de corpo inteiro
 	
 	/** Augmentations */
-	public static int AUGMENTATION_NG_SKILL_CHANCE;
-	public static int AUGMENTATION_NG_GLOW_CHANCE;
-	public static int AUGMENTATION_MID_SKILL_CHANCE;
-	public static int AUGMENTATION_MID_GLOW_CHANCE;
-	public static int AUGMENTATION_HIGH_SKILL_CHANCE;
-	public static int AUGMENTATION_HIGH_GLOW_CHANCE;
-	public static int AUGMENTATION_TOP_SKILL_CHANCE;
-	public static int AUGMENTATION_TOP_GLOW_CHANCE;
-	public static int AUGMENTATION_BASESTAT_CHANCE;
+	public static int AUGMENTATION_NG_SKILL_CHANCE; // Chance de skill em augmentation de baixo grau
+	public static int AUGMENTATION_NG_GLOW_CHANCE; // Chance de brilho em augmentation de baixo grau
+	public static int AUGMENTATION_MID_SKILL_CHANCE; // Chance de skill em augmentation de grau médio
+	public static int AUGMENTATION_MID_GLOW_CHANCE; // Chance de brilho em augmentation de grau médio
+	public static int AUGMENTATION_HIGH_SKILL_CHANCE; // Chance de skill em augmentation de alto grau
+	public static int AUGMENTATION_HIGH_GLOW_CHANCE; // Chance de brilho em augmentation de alto grau
+	public static int AUGMENTATION_TOP_SKILL_CHANCE; // Chance de skill em augmentation de grau máximo
+	public static int AUGMENTATION_TOP_GLOW_CHANCE; // Chance de brilho em augmentation de grau máximo
+	public static int AUGMENTATION_BASESTAT_CHANCE; // Chance de modificador de status base em augmentation
 	
-	/** Karma & PvP */
-	public static boolean KARMA_PLAYER_CAN_SHOP;
-	public static boolean KARMA_PLAYER_CAN_USE_GK;
-	public static boolean KARMA_PLAYER_CAN_TELEPORT;
-	public static boolean KARMA_PLAYER_CAN_TRADE;
-	public static boolean KARMA_PLAYER_CAN_USE_WH;
+	/** Karma e PvP */
+	public static boolean KARMA_PLAYER_CAN_SHOP; // Jogador com karma pode usar loja
+	public static boolean KARMA_PLAYER_CAN_USE_GK; // Jogador com karma pode usar Gatekeeper
+	public static boolean KARMA_PLAYER_CAN_TELEPORT; // Jogador com karma pode se teleportar
+	public static boolean KARMA_PLAYER_CAN_TRADE; // Jogador com karma pode negociar
+	public static boolean KARMA_PLAYER_CAN_USE_WH; // Jogador com karma pode usar armazém
 	
-	public static boolean KARMA_DROP_GM;
-	public static boolean KARMA_AWARD_PK_KILL;
-	public static int KARMA_PK_LIMIT;
+	public static boolean KARMA_DROP_GM; // GM pode dropar equipamento
+	public static boolean KARMA_AWARD_PK_KILL; // Conceder ponto de PvP por matar um jogador com karma
+	public static int KARMA_PK_LIMIT; // Limite de PK para dropar itens
 	
-	public static int[] KARMA_NONDROPPABLE_PET_ITEMS;
-	public static int[] KARMA_NONDROPPABLE_ITEMS;
+	public static int[] KARMA_NONDROPPABLE_PET_ITEMS; // Itens de pet que não podem ser dropados
+	public static int[] KARMA_NONDROPPABLE_ITEMS; // Itens que não podem ser dropados por PK
 	
-	public static int PVP_NORMAL_TIME;
-	public static int PVP_PVP_TIME;
+	public static int PVP_NORMAL_TIME; // Tempo em modo PvP após atacar um inocente
+	public static int PVP_PVP_TIME; // Tempo em modo PvP após atacar um jogador em modo PvP
 	
-	/** Party */
-	public static String PARTY_XP_CUTOFF_METHOD;
-	public static int PARTY_XP_CUTOFF_LEVEL;
-	public static double PARTY_XP_CUTOFF_PERCENT;
-	public static int PARTY_RANGE;
+	/** Grupo */
+	public static String PARTY_XP_CUTOFF_METHOD; // Método de corte de distribuição de XP do grupo
+	public static int PARTY_XP_CUTOFF_LEVEL; // Nível de corte de distribuição de XP do grupo
+	public static double PARTY_XP_CUTOFF_PERCENT; // Porcentagem de corte de distribuição de XP do grupo
+	public static int PARTY_RANGE; // Alcance do grupo
 	
-	/** GMs & Admin Stuff */
-	public static int DEFAULT_ACCESS_LEVEL;
-	public static boolean GM_HERO_AURA;
-	public static boolean GM_STARTUP_INVULNERABLE;
-	public static boolean GM_STARTUP_INVISIBLE;
-	public static boolean GM_STARTUP_BLOCK_ALL;
-	public static boolean GM_STARTUP_AUTO_LIST;
+	/** GMs e Administração */
+	public static int DEFAULT_ACCESS_LEVEL; // Nível de acesso padrão
+	public static boolean GM_HERO_AURA; // Aura de herói para GMs
+	public static boolean GM_STARTUP_INVULNERABLE; // GM invulnerável ao entrar no jogo
+	public static boolean GM_STARTUP_INVISIBLE; // GM invisível ao entrar no jogo
+	public static boolean GM_STARTUP_BLOCK_ALL; // Bloquear todas as mensagens privadas para GMs ao entrar no jogo
+	public static boolean GM_STARTUP_AUTO_LIST; // Listar GMs automaticamente na lista de GMs ao entrar no jogo
 	
-	/** petitions */
-	public static boolean PETITIONING_ALLOWED;
-	public static int MAX_PETITIONS_PER_PLAYER;
-	public static int MAX_PETITIONS_PENDING;
+	/** Petições */
+	public static boolean PETITIONING_ALLOWED; // Permitir petições
+	public static int MAX_PETITIONS_PER_PLAYER; // Máximo de petições por jogador
+	public static int MAX_PETITIONS_PENDING; // Máximo de petições pendentes
 	
 	/** Crafting **/
-	public static boolean IS_CRAFTING_ENABLED;
-	public static int DWARF_RECIPE_LIMIT;
-	public static int COMMON_RECIPE_LIMIT;
-	public static boolean BLACKSMITH_USE_RECIPES;
+	public static boolean IS_CRAFTING_ENABLED; // Ativar crafting
+	public static int DWARF_RECIPE_LIMIT; // Limite de receitas para anões
+	public static int COMMON_RECIPE_LIMIT; // Limite de receitas comuns
+	public static boolean BLACKSMITH_USE_RECIPES; // Ferreiros usam receitas do inventário do jogador
 	
-	/** Skills & Classes **/
-	public static boolean AUTO_LEARN_SKILLS;
-	public static boolean MAGIC_FAILURES;
-	public static int PERFECT_SHIELD_BLOCK_RATE;
-	public static boolean LIFE_CRYSTAL_NEEDED;
-	public static boolean SP_BOOK_NEEDED;
-	public static boolean ES_SP_BOOK_NEEDED;
-	public static boolean DIVINE_SP_BOOK_NEEDED;
-	public static boolean SUBCLASS_WITHOUT_QUESTS;
+	/** Skills e Classes **/
+	public static boolean AUTO_LEARN_SKILLS; // Aprender skills automaticamente
+	public static boolean MAGIC_FAILURES; // Falhas em magias
+	public static int PERFECT_SHIELD_BLOCK_RATE; // Taxa de bloqueio perfeito com escudo
+	public static boolean LIFE_CRYSTAL_NEEDED; // Cristal da vida necessário para aprender skills de clã
+	public static boolean SP_BOOK_NEEDED; // Livro de feitiços necessário para aprender skills
+	public static boolean ES_SP_BOOK_NEEDED; // Livro de feitiços necessário para encantar skills
+	public static boolean DIVINE_SP_BOOK_NEEDED; // Livro de feitiços necessário para aprender Divine Inspiration
+	public static boolean SUBCLASS_WITHOUT_QUESTS; // Subclasse sem quests
 	
 	/** Buffs */
-	public static boolean STORE_SKILL_COOLTIME;
-	public static int MAX_BUFFS_AMOUNT;
+	public static boolean STORE_SKILL_COOLTIME; // Salvar o tempo de recarga das skills ao sair do jogo
+	public static int MAX_BUFFS_AMOUNT; // Quantidade máxima de buffs
 	
 	// --------------------------------------------------
 	// Sieges
 	// --------------------------------------------------
 	
-	public static int SIEGE_LENGTH;
-	public static int MINIMUM_CLAN_LEVEL;
-	public static int MAX_ATTACKERS_NUMBER;
-	public static int MAX_DEFENDERS_NUMBER;
-	public static int ATTACKERS_RESPAWN_DELAY;
+	public static int SIEGE_LENGTH; // Duração da siege em minutos
+	public static int MINIMUM_CLAN_LEVEL; // Nível mínimo do clã para registrar na siege
+	public static int MAX_ATTACKERS_NUMBER; // Número máximo de clãs atacantes
+	public static int MAX_DEFENDERS_NUMBER; // Número máximo de clãs defensores
+	public static int ATTACKERS_RESPAWN_DELAY; // Tempo de respawn dos atacantes
 	
-	public static int CH_MINIMUM_CLAN_LEVEL;
-	public static int CH_MAX_ATTACKERS_NUMBER;
+	public static int CH_MINIMUM_CLAN_LEVEL; // Nível mínimo do clã para registrar na siege de Clan Hall
+	public static int CH_MAX_ATTACKERS_NUMBER; // Número máximo de clãs atacantes na siege de Clan Hall
 	
 	// --------------------------------------------------
-	// Server
+	// Servidor
 	// --------------------------------------------------
 	
-	public static String HOSTNAME;
-	public static String GAMESERVER_HOSTNAME;
-	public static int GAMESERVER_PORT;
-	public static String GAMESERVER_LOGIN_HOSTNAME;
-	public static int GAMESERVER_LOGIN_PORT;
-	public static int REQUEST_ID;
-	public static boolean ACCEPT_ALTERNATE_ID;
-	public static boolean USE_BLOWFISH_CIPHER;
+	public static String HOSTNAME; // Hostname do servidor
+	public static String GAMESERVER_HOSTNAME; // Hostname do servidor de jogo
+	public static int GAMESERVER_PORT; // Porta do servidor de jogo
+	public static String GAMESERVER_LOGIN_HOSTNAME; // Hostname do servidor de login para o servidor de jogo
+	public static int GAMESERVER_LOGIN_PORT; // Porta do servidor de login para o servidor de jogo
+	public static int REQUEST_ID; // ID do servidor solicitado
+	public static boolean ACCEPT_ALTERNATE_ID; // Aceitar ID alternativo
+	public static boolean USE_BLOWFISH_CIPHER; // Usar criptografia Blowfish
 	
-	/** Access to database */
-	public static String DATABASE_URL;
-	public static String DATABASE_LOGIN;
-	public static String DATABASE_PASSWORD;
+	/** Acesso ao banco de dados */
+	public static String DATABASE_URL; // URL do banco de dados
+	public static String DATABASE_LOGIN; // Login do banco de dados
+	public static String DATABASE_PASSWORD; // Senha do banco de dados
 	
-	/** serverList & Test */
-	public static boolean SERVER_LIST_BRACKET;
-	public static boolean SERVER_LIST_CLOCK;
-	public static int SERVER_LIST_AGE;
-	public static boolean SERVER_LIST_TESTSERVER;
-	public static boolean SERVER_LIST_PVPSERVER;
-	public static boolean SERVER_GMONLY;
+	/** Lista de servidores e Teste */
+	public static boolean SERVER_LIST_BRACKET; // Mostrar colchetes no nome do servidor
+	public static boolean SERVER_LIST_CLOCK; // Mostrar relógio no nome do servidor
+	public static int SERVER_LIST_AGE; // Idade do servidor
+	public static boolean SERVER_LIST_TESTSERVER; // Servidor de teste
+	public static boolean SERVER_LIST_PVPSERVER; // Servidor PvP
+	public static boolean SERVER_GMONLY; // Servidor apenas para GMs
 	
-	/** clients related */
-	public static int DELETE_DAYS;
-	public static int MAXIMUM_ONLINE_USERS;
+	/** Opções relacionadas ao cliente */
+	public static int DELETE_DAYS; // Dias para deletar um personagem
+	public static int MAXIMUM_ONLINE_USERS; // Máximo de usuários online
 	
 	/** Auto-loot */
-	public static boolean AUTO_LOOT;
-	public static boolean AUTO_LOOT_HERBS;
-	public static boolean AUTO_LOOT_RAID;
+	public static boolean AUTO_LOOT; // Auto-loot
+	public static boolean AUTO_LOOT_HERBS; // Auto-loot de ervas
+	public static boolean AUTO_LOOT_RAID; // Auto-loot de raid boss
 	
-	/** Items Management */
-	public static boolean ALLOW_DISCARDITEM;
-	public static boolean MULTIPLE_ITEM_DROP;
-	public static int HERB_AUTO_DESTROY_TIME;
-	public static int ITEM_AUTO_DESTROY_TIME;
-	public static int EQUIPABLE_ITEM_AUTO_DESTROY_TIME;
-	public static Map<Integer, Integer> SPECIAL_ITEM_DESTROY_TIME;
-	public static int PLAYER_DROPPED_ITEM_MULTIPLIER;
+	/** Gerenciamento de Itens */
+	public static boolean ALLOW_DISCARDITEM; // Permitir descarte de itens
+	public static boolean MULTIPLE_ITEM_DROP; // Permitir drop de múltiplos itens não empilháveis
+	public static int HERB_AUTO_DESTROY_TIME; // Tempo para destruir ervas dropadas
+	public static int ITEM_AUTO_DESTROY_TIME; // Tempo para destruir itens dropados
+	public static int EQUIPABLE_ITEM_AUTO_DESTROY_TIME; // Tempo para destruir itens equipáveis dropados
+	public static Map<Integer, Integer> SPECIAL_ITEM_DESTROY_TIME; // Tempo para destruir itens especiais dropados
+	public static int PLAYER_DROPPED_ITEM_MULTIPLIER; // Multiplicador de tempo para destruir itens dropados por jogadores
 	
-	/** Rate control */
-	public static double RATE_XP;
-	public static double RATE_SP;
-	public static double RATE_PARTY_XP;
-	public static double RATE_PARTY_SP;
-	public static double RATE_DROP_CURRENCY;
-	public static double RATE_DROP_ITEMS;
-	public static double RATE_DROP_ITEMS_BY_RAID;
-	public static double RATE_DROP_SPOIL;
-	public static double RATE_DROP_HERBS;
-	public static int RATE_DROP_MANOR;
+	/** Taxas */
+	public static double RATE_XP; // Taxa de XP
+	public static double RATE_SP; // Taxa de SP
+	public static double RATE_PARTY_XP; // Taxa de XP em grupo
+	public static double RATE_PARTY_SP; // Taxa de SP em grupo
+	public static double RATE_DROP_CURRENCY; // Taxa de drop de moeda
+	public static double RATE_DROP_ITEMS; // Taxa de drop de itens
+	public static double RATE_DROP_ITEMS_BY_RAID; // Taxa de drop de itens por raid boss
+	public static double RATE_DROP_SPOIL; // Taxa de drop de spoil
+	public static double RATE_DROP_HERBS; // Taxa de drop de ervas
+	public static int RATE_DROP_MANOR; // Taxa de drop de manor
 	
-	public static double RATE_QUEST_DROP;
-	public static double RATE_QUEST_REWARD;
-	public static double RATE_QUEST_REWARD_XP;
-	public static double RATE_QUEST_REWARD_SP;
-	public static double RATE_QUEST_REWARD_ADENA;
+	public static double RATE_QUEST_DROP; // Taxa de drop de quest
+	public static double RATE_QUEST_REWARD; // Taxa de recompensa de quest
+	public static double RATE_QUEST_REWARD_XP; // Taxa de recompensa de XP de quest
+	public static double RATE_QUEST_REWARD_SP; // Taxa de recompensa de SP de quest
+	public static double RATE_QUEST_REWARD_ADENA; // Taxa de recompensa de adena de quest
 	
-	public static double RATE_KARMA_EXP_LOST;
-	public static double RATE_SIEGE_GUARDS_PRICE;
+	public static double RATE_KARMA_EXP_LOST; // Taxa de perda de XP com karma
+	public static double RATE_SIEGE_GUARDS_PRICE; // Preço dos guardas da siege
 	
-	public static int PLAYER_DROP_LIMIT;
-	public static int PLAYER_RATE_DROP;
-	public static int PLAYER_RATE_DROP_ITEM;
-	public static int PLAYER_RATE_DROP_EQUIP;
-	public static int PLAYER_RATE_DROP_EQUIP_WEAPON;
+	public static int PLAYER_DROP_LIMIT; // Limite de drop do jogador
+	public static int PLAYER_RATE_DROP; // Taxa de drop do jogador
+	public static int PLAYER_RATE_DROP_ITEM; // Taxa de drop de item do jogador
+	public static int PLAYER_RATE_DROP_EQUIP; // Taxa de drop de equipamento do jogador
+	public static int PLAYER_RATE_DROP_EQUIP_WEAPON; // Taxa de drop de arma do jogador
 	
-	public static int KARMA_DROP_LIMIT;
-	public static int KARMA_RATE_DROP;
-	public static int KARMA_RATE_DROP_ITEM;
-	public static int KARMA_RATE_DROP_EQUIP;
-	public static int KARMA_RATE_DROP_EQUIP_WEAPON;
+	public static int KARMA_DROP_LIMIT; // Limite de drop com karma
+	public static int KARMA_RATE_DROP; // Taxa de drop com karma
+	public static int KARMA_RATE_DROP_ITEM; // Taxa de drop de item com karma
+	public static int KARMA_RATE_DROP_EQUIP; // Taxa de drop de equipamento com karma
+	public static int KARMA_RATE_DROP_EQUIP_WEAPON; // Taxa de drop de arma com karma
 	
-	public static double PET_XP_RATE;
-	public static int PET_FOOD_RATE;
-	public static double SINEATER_XP_RATE;
+	public static double PET_XP_RATE; // Taxa de XP de pet
+	public static int PET_FOOD_RATE; // Taxa de comida de pet
+	public static double SINEATER_XP_RATE; // Taxa de XP de Sin Eater
 	
-	/** Allow types */
-	public static boolean ALLOW_FREIGHT;
-	public static boolean ALLOW_WAREHOUSE;
-	public static boolean ALLOW_WEAR;
-	public static int WEAR_DELAY;
-	public static int WEAR_PRICE;
-	public static boolean ALLOW_LOTTERY;
-	public static boolean ALLOW_WATER;
-	public static boolean ALLOW_BOAT;
-	public static boolean ALLOW_CURSED_WEAPONS;
-	public static boolean ALLOW_MANOR;
-	public static boolean ENABLE_FALLING_DAMAGE;
+	/** Tipos permitidos */
+	public static boolean ALLOW_FREIGHT; // Permitir frete
+	public static boolean ALLOW_WAREHOUSE; // Permitir armazém
+	public static boolean ALLOW_WEAR; // Permitir experimentar itens
+	public static int WEAR_DELAY; // Atraso para experimentar itens
+	public static int WEAR_PRICE; // Preço para experimentar itens
+	public static boolean ALLOW_LOTTERY; // Permitir loteria
+	public static boolean ALLOW_WATER; // Permitir água
+	public static boolean ALLOW_MANOR; // Permitir manor
+	public static boolean ALLOW_BOAT; // Permitir barco
+	public static boolean ALLOW_CURSED_WEAPONS; // Permitir armas amaldiçoadas
 	
-	/** Debug & Dev */
-	public static boolean NO_SPAWNS;
-	public static boolean DEVELOPER;
-	public static boolean PACKET_HANDLER_DEBUG;
+	public static boolean ENABLE_FALLING_DAMAGE; // Ativar dano de queda
+	
+	/** Debug e Desenvolvimento */
+	public static boolean NO_SPAWNS; // Não carregar spawns
+	public static boolean DEVELOPER; // Modo desenvolvedor
+	public static boolean PACKET_HANDLER_DEBUG; // Debug do manipulador de pacotes
 	
 	/** Logs */
-	public static boolean LOG_CHAT;
-	public static boolean LOG_ITEMS;
-	public static boolean GMAUDIT;
+	public static boolean LOG_CHAT; // Logar chat
+	public static boolean LOG_ITEMS; // Logar itens
+	public static boolean GMAUDIT; // Auditoria de GM
 	
 	/** Community Board */
-	public static boolean ENABLE_COMMUNITY_BOARD;
-	public static String BBS_DEFAULT;
+	public static boolean ENABLE_COMMUNITY_BOARD; // Ativar Community Board
+	public static String BBS_DEFAULT; // Seção padrão do Community Board
 	
-	/** Flood Protectors */
-	public static int ROLL_DICE_TIME;
-	public static int HERO_VOICE_TIME;
-	public static int SUBCLASS_TIME;
-	public static int DROP_ITEM_TIME;
-	public static int SERVER_BYPASS_TIME;
-	public static int MULTISELL_TIME;
-	public static int MANUFACTURE_TIME;
-	public static int MANOR_TIME;
-	public static int SENDMAIL_TIME;
-	public static int CHARACTER_SELECT_TIME;
-	public static int GLOBAL_CHAT_TIME;
-	public static int TRADE_CHAT_TIME;
-	public static int SOCIAL_TIME;
+	/** Proteção contra Flood */
+	public static int ROLL_DICE_TIME; // Tempo para rolar dados
+	public static int HERO_VOICE_TIME; // Tempo para usar a voz de herói
+	public static int SUBCLASS_TIME; // Tempo para adicionar subclasse
+	public static int DROP_ITEM_TIME; // Tempo para dropar item
+	public static int SERVER_BYPASS_TIME; // Tempo para bypass do servidor
+	public static int MULTISELL_TIME; // Tempo para multisell
+	public static int MANUFACTURE_TIME; // Tempo para manufacture
+	public static int MANOR_TIME; // Tempo para manor
+	public static int SENDMAIL_TIME; // Tempo para enviar e-mail
+	public static int CHARACTER_SELECT_TIME; // Tempo para selecionar personagem
+	public static int GLOBAL_CHAT_TIME; // Tempo para chat global
+	public static int TRADE_CHAT_TIME; // Tempo para chat de troca
+	public static int SOCIAL_TIME; // Tempo para ações sociais
 	
-	/** Misc */
-	public static boolean L2WALKER_PROTECTION;
-	public static boolean SERVER_NEWS;
-	public static int ZONE_TOWN;
+	/** Diversos */
+	public static boolean L2WALKER_PROTECTION; // Proteção contra L2Walker
+	public static boolean SERVER_NEWS; // Notícias do servidor
+	public static int ZONE_TOWN; // Configuração da zona da cidade
 
 	/** Auto Farm */
-	public static boolean AUTOFARM_ENABLED;
-	public static boolean AUTOFARM_ALLOW_DUALBOX;
-	public static boolean AUTOFARM_SEND_LOG_MESSAGES;
-	public static boolean AUTOFARM_CHANGE_PLAYER_TITLE;
-	public static boolean AUTOFARM_CHANGE_PLAYER_NAME_COLOR;
-	public static boolean AUTOFARM_DISABLE_TOWN;
-	public static boolean AUTOFARM_SHOW_ROUTE_RANGE;
-	public static double AUTOFARM_HP_HEAL_RATE;
-	public static double AUTOFARM_MP_HEAL_RATE;
-	public static int AUTOFARM_MAX_ZONE_AREA;
-	public static int AUTOFARM_MAX_ROUTE_PERIMITER;
-	public static int AUTOFARM_MAX_ZONES;
-	public static int AUTOFARM_MAX_ROUTES;
-	public static int AUTOFARM_MAX_ZONE_NODES;
-	public static int AUTOFARM_MAX_ROUTE_NODES;
-	public static int AUTOFARM_DEBUFF_CHANCE;
-	public static int AUTOFARM_MAX_TIMER;
-	public static int AUTOFARM_MAX_OPEN_RADIUS;
-	public static int[] AUTOFARM_HP_POTIONS;
-	public static int[] AUTOFARM_MP_POTIONS;
-	public static String AUTOFARM_NAME_COLOR;
+	public static boolean AUTOFARM_ENABLED; // Ativar sistema de auto farm
+	public static boolean AUTOFARM_ALLOW_DUALBOX; // Permitir dualbox no auto farm
+	public static boolean AUTOFARM_SEND_LOG_MESSAGES; // Enviar mensagens de log do auto farm
+	public static boolean AUTOFARM_CHANGE_PLAYER_TITLE; // Alterar o título do jogador no auto farm
+	public static boolean AUTOFARM_CHANGE_PLAYER_NAME_COLOR; // Alterar a cor do nome do jogador no auto farm
+	public static boolean AUTOFARM_DISABLE_TOWN; // Desativar auto farm na cidade
+	public static boolean AUTOFARM_SHOW_ROUTE_RANGE; // Mostrar o alcance da rota no auto farm
+	public static double AUTOFARM_HP_HEAL_RATE; // Taxa de cura de HP no auto farm
+	public static double AUTOFARM_MP_HEAL_RATE; // Taxa de cura de MP no auto farm
+	public static int AUTOFARM_MAX_ZONE_AREA; // Área máxima da zona de auto farm
+	public static int AUTOFARM_MAX_ROUTE_PERIMITER; // Perímetro máximo da rota de auto farm
+	public static int AUTOFARM_MAX_ZONES; // Máximo de zonas de auto farm
+	public static int AUTOFARM_MAX_ROUTES; // Máximo de rotas de auto farm
+	public static int AUTOFARM_MAX_ZONE_NODES; // Máximo de nós de zona de auto farm
+	public static int AUTOFARM_MAX_ROUTE_NODES; // Máximo de nós de rota de auto farm
+	public static int AUTOFARM_DEBUFF_CHANCE; // Chance de debuff no auto farm
+	public static int AUTOFARM_MAX_TIMER; // Tempo máximo do auto farm
+	public static int AUTOFARM_MAX_OPEN_RADIUS; // Raio máximo de auto farm aberto
+	public static int[] AUTOFARM_HP_POTIONS; // Poções de HP para o auto farm
+	public static int[] AUTOFARM_MP_POTIONS; // Poções de MP para o auto farm
+	public static String AUTOFARM_NAME_COLOR; // Cor do nome do jogador no auto farm
 
 
-	/** Voiced Command */
-	public static boolean COMMAND_ONLINE;
-    public static boolean BANKING_SYSTEM;
-    public static int BANKING_SYSTEM_ADENA;
-	public static int BANKING_SYSTEM_GOLDBAR;
-	public static IntIntHolder[] BANKING_SYSTEM_ITEM;
+	/** Comandos de Voz */
+	public static boolean COMMAND_ONLINE; // Comando .online
+    public static boolean BANKING_SYSTEM; // Sistema bancário
+    public static int BANKING_SYSTEM_ADENA; // Adena para o sistema bancário
+	public static int BANKING_SYSTEM_GOLDBAR; // Barra de ouro para o sistema bancário
+	public static IntIntHolder[] BANKING_SYSTEM_ITEM; // Item para o sistema bancário
 
-	/** Vip System */
-	public static boolean NEW_CHAR_VIP;
-	public static int DEFAULT_VIP_LEVEL;
-	public static long DEFAULT_VIP_EXP;
-	public static long DEFAULT_VIP_TIME;
+	/** Sistema VIP */
+	public static boolean NEW_CHAR_VIP; // Personagem novo começa como VIP
+	public static int DEFAULT_VIP_LEVEL; // Nível VIP padrão
+	public static long DEFAULT_VIP_EXP; // Experiência VIP padrão
+	public static long DEFAULT_VIP_TIME; // Tempo VIP padrão
 
 	// --------------------------------------------------
-	// Those "hidden" settings haven't configs to avoid admins to fuck their server
-	// You still can experiment changing values here. But don't say I didn't warn you.
+	// Essas configurações "ocultas" não têm configs para evitar que os administradores estraguem seu servidor
+	// Você ainda pode experimentar alterar os valores aqui. Mas não diga que não avisei.
 	// --------------------------------------------------
 	
-	/** Reserve Host on LoginServerThread */
-	public static boolean RESERVE_HOST_ON_LOGIN = false; // default false
+	/** Reserva de Host no LoginServerThread */
+	public static boolean RESERVE_HOST_ON_LOGIN = false; // padrão false
 	
-	/** MMO settings */
-	public static int MMO_SELECTOR_SLEEP_TIME = 20; // default 20
-	public static int MMO_MAX_SEND_PER_PASS = 80; // default 80
-	public static int MMO_MAX_READ_PER_PASS = 80; // default 80
-	public static int MMO_HELPER_BUFFER_COUNT = 20; // default 20
+	/** Configurações de MMO */
+	public static int MMO_SELECTOR_SLEEP_TIME = 20; // padrão 20
+	public static int MMO_MAX_SEND_PER_PASS = 80; // padrão 80
+	public static int MMO_MAX_READ_PER_PASS = 80; // padrão 80
+	public static int MMO_HELPER_BUFFER_COUNT = 20; // padrão 20
 	
-	/** Client Packets Queue settings */
-	public static int CLIENT_PACKET_QUEUE_SIZE = MMO_MAX_READ_PER_PASS + 2; // default MMO_MAX_READ_PER_PASS + 2
-	public static int CLIENT_PACKET_QUEUE_MAX_BURST_SIZE = MMO_MAX_READ_PER_PASS + 1; // default MMO_MAX_READ_PER_PASS + 1
-	public static int CLIENT_PACKET_QUEUE_MAX_PACKETS_PER_SECOND = 160; // default 160
-	public static int CLIENT_PACKET_QUEUE_MEASURE_INTERVAL = 5; // default 5
-	public static int CLIENT_PACKET_QUEUE_MAX_AVERAGE_PACKETS_PER_SECOND = 80; // default 80
-	public static int CLIENT_PACKET_QUEUE_MAX_FLOODS_PER_MIN = 2; // default 2
-	public static int CLIENT_PACKET_QUEUE_MAX_OVERFLOWS_PER_MIN = 1; // default 1
-	public static int CLIENT_PACKET_QUEUE_MAX_UNDERFLOWS_PER_MIN = 1; // default 1
-	public static int CLIENT_PACKET_QUEUE_MAX_UNKNOWN_PER_MIN = 5; // default 5
+	/** Configurações da Fila de Pacotes do Cliente */
+	public static int CLIENT_PACKET_QUEUE_SIZE = MMO_MAX_READ_PER_PASS + 2; // padrão MMO_MAX_READ_PER_PASS + 2
+	public static int CLIENT_PACKET_QUEUE_MAX_BURST_SIZE = MMO_MAX_READ_PER_PASS + 1; // padrão MMO_MAX_READ_PER_PASS + 1
+	public static int CLIENT_PACKET_QUEUE_MAX_PACKETS_PER_SECOND = 160; // padrão 160
+	public static int CLIENT_PACKET_QUEUE_MEASURE_INTERVAL = 5; // padrão 5
+	public static int CLIENT_PACKET_QUEUE_MAX_AVERAGE_PACKETS_PER_SECOND = 80; // padrão 80
+	public static int CLIENT_PACKET_QUEUE_MAX_FLOODS_PER_MIN = 2; // padrão 2
+	public static int CLIENT_PACKET_QUEUE_MAX_OVERFLOWS_PER_MIN = 1; // padrão 1
+	public static int CLIENT_PACKET_QUEUE_MAX_UNDERFLOWS_PER_MIN = 1; // padrão 1
+	public static int CLIENT_PACKET_QUEUE_MAX_UNKNOWN_PER_MIN = 5; // padrão 5
 	
 	// --------------------------------------------------
 	
 	/**
-	 * Initialize {@link ExProperties} from specified configuration file.
-	 * @param filename : File name to be loaded.
-	 * @return ExProperties : Initialized {@link ExProperties}.
+	 * Inicializa {@link ExProperties} a partir do arquivo de configuração especificado.
+	 * @param filename : Nome do arquivo a ser carregado.
+	 * @return ExProperties : {@link ExProperties} inicializado.
 	 */
 	public static final ExProperties initProperties(String filename)
 	{
@@ -585,14 +587,14 @@ public final class Config
 		}
 		catch (Exception e)
 		{
-			LOGGER.error("An error occured loading '{}' config.", e, filename);
+			LOGGER.error("Ocorreu um erro ao carregar o arquivo de configuração '{}'.", e, filename);
 		}
 		
 		return result;
 	}
 	
 	/**
-	 * Loads clan and clan hall settings.
+	 * Carrega as configurações de clãs e clan halls.
 	 */
 	private static final void loadClans()
 	{
@@ -619,8 +621,8 @@ public final class Config
 	}
 	
 	/**
-	 * Loads event settings.<br>
-	 * Such as olympiad, seven signs festival, four sepulchures, dimensional rift, weddings, lottery, fishing championship.
+	 * Carrega as configurações de eventos.<br>
+	 * Como olimpíadas, festival seven signs, four sepulchers, dimensional rift, casamentos, loteria, torneio de pesca.
 	 */
 	private static final void loadEvents()
 	{
@@ -689,7 +691,7 @@ public final class Config
 	}
 	
 	/**
-	 * Loads geoengine settings.
+	 * Carrega as configurações do geoengine.
 	 */
 	private static final void loadGeoengine()
 	{
@@ -712,7 +714,7 @@ public final class Config
 	}
 	
 	/**
-	 * Loads hex ID settings.
+	 * Carrega as configurações do hex ID.
 	 */
 	private static final void loadHexID()
 	{
@@ -723,9 +725,9 @@ public final class Config
 	}
 	
 	/**
-	 * Saves hex ID file.
-	 * @param serverId : The ID of server.
-	 * @param hexId : The hex ID of server.
+	 * Salva o arquivo hex ID.
+	 * @param serverId : O ID do servidor.
+	 * @param hexId : O hex ID do servidor.
 	 */
 	public static final void saveHexid(int serverId, String hexId)
 	{
@@ -733,10 +735,10 @@ public final class Config
 	}
 	
 	/**
-	 * Saves hexID file.
-	 * @param serverId : The ID of server.
-	 * @param hexId : The hexID of server.
-	 * @param filename : The file name.
+	 * Salva o arquivo hexID.
+	 * @param serverId : O ID do servidor.
+	 * @param hexId : O hexID do servidor.
+	 * @param filename : O nome do arquivo.
 	 */
 	public static final void saveHexid(int serverId, String hexId, String filename)
 	{
@@ -756,13 +758,13 @@ public final class Config
 		}
 		catch (Exception e)
 		{
-			LOGGER.error("Failed to save hex ID to '{}' file.", e, filename);
+			LOGGER.error("Falha ao salvar o hex ID no arquivo '{}'.", e, filename);
 		}
 	}
 	
 	/**
-	 * Loads NPC settings.<br>
-	 * Such as champion monsters, NPC buffer, class master, wyvern, raid bosses and grand bosses, AI.
+	 * Carrega as configurações de NPCs.<br>
+	 * Como monstros campeões, buffer de NPC, class master, wyvern, raid bosses e grand bosses, IA.
 	 */
 	private static final void loadNpcs()
 	{
@@ -850,8 +852,8 @@ public final class Config
 	}
 	
 	/**
-	 * Loads player settings.<br>
-	 * Such as stats, inventory/warehouse, enchant, augmentation, karma, party, admin, petition, skill learn.
+	 * Carrega as configurações do jogador.<br>
+	 * Como status, inventário/armazém, encantamento, augmentation, karma, grupo, admin, petição, aprendizado de skill.
 	 */
 	private static final void loadPlayers()
 	{
@@ -976,7 +978,7 @@ public final class Config
 	}
 	
 	/**
-	 * Loads siege settings.
+	 * Carrega as configurações de siege.
 	 */
 	private static final void loadSieges()
 	{
@@ -993,8 +995,8 @@ public final class Config
 	}
 	
 	/**
-	 * Loads gameserver settings.<br>
-	 * IP addresses, database, rates, feature enabled/disabled, misc.
+	 * Carrega as configurações do servidor de jogo.<br>
+	 * Endereços IP, banco de dados, taxas, recursos ativados/desativados, diversos.
 	 */
 	private static final void loadServer()
 	{
@@ -1119,8 +1121,8 @@ public final class Config
 	}
 	
 	/**
-	 * Loads loginserver settings.<br>
-	 * IP addresses, database, account, misc.
+	 * Carrega as configurações do servidor de login.<br>
+	 * Endereços IP, banco de dados, conta, diversos.
 	 */
 	private static final void loadLogin()
 	{
@@ -1149,7 +1151,7 @@ public final class Config
 		MAX_CONNECTION_PER_IP = server.getProperty("MaxConnectionPerIP", 50);
 	}
 
-	//Load AutoFarmManager
+	//Carrega o AutoFarmManager
 	public static final void loadAutoFarmManager()
 	{
 	final ExProperties farm = initProperties(AUTOFARM_FILE);
@@ -1176,7 +1178,7 @@ public final class Config
 		AUTOFARM_NAME_COLOR = farm.getProperty("PLAYER_NAME_COLOR", "000000");
 	}
 
-	// Load Voinced Command
+	// Carrega os Comandos de Voz
 	public static final void loadVoicedCommand()
 	{
 		final ExProperties VoincedCommand = initProperties(VoicedCommand_FILE);
@@ -1186,6 +1188,7 @@ public final class Config
 		BANKING_SYSTEM_ADENA = VoincedCommand.getProperty("BankingAdenaCount", 500000000);
 	}
 
+    // Carrega as Configurações VIP
 	public static final void loadVipConfig(){
 
 		final ExProperties vip = initProperties(VIP_FILE);
@@ -1198,71 +1201,71 @@ public final class Config
 
 	public static final void loadGameServer()
 	{
-		LOGGER.info("Loading gameserver configuration files.");
+		LOGGER.info("Carregando arquivos de configuração do servidor de jogo.");
 		
-		// clans settings
+		// configurações de clãs
 		loadClans();
 		
-		// events settings
+		// configurações de eventos
 		loadEvents();
 		
-		// geoengine settings
+		// configurações do geoengine
 		loadGeoengine();
 		
 		// hexID
 		loadHexID();
 		
-		// NPCs/monsters settings
+		// configurações de NPCs/monstros
 		loadNpcs();
 		
-		// players settings
+		// configurações de jogadores
 		loadPlayers();
 		
-		// siege settings
+		// configurações de siege
 		loadSieges();
 		
-		// server settings
+		// configurações do servidor
 		loadServer();
 
-		// Autofarm settings
+		// configurações do Autofarm
 		loadAutoFarm();
 
-		//Load VoicedCommand
+		//Carrega os Comandos de Voz
 		loadVoicedCommand();
 
-		//Loda Vip Config
+		//Carrega as Configurações VIP
 		loadVipConfig();
 	}
 	
 	public static final void loadLoginServer()
 	{
-		LOGGER.info("Loading loginserver configuration files.");
+		LOGGER.info("Carregando arquivos de configuração do servidor de login.");
 		
-		// login settings
+		// configurações de login
 		loadLogin();
 	}
 	
 	public static final void loadAccountManager()
 	{
-		LOGGER.info("Loading account manager configuration files.");
+		LOGGER.info("Carregando arquivos de configuração do gerenciador de contas.");
 		
-		// login settings
+		// configurações de login
 		loadLogin();
 	}
 	
 	public static final void loadGameServerRegistration()
 	{
-		LOGGER.info("Loading gameserver registration configuration files.");
+		LOGGER.info("Carregando arquivos de configuração de registro do servidor de jogo.");
 		
-		// login settings
+		// configurações de login
 		loadLogin();
 	}
 
 	public static final void loadAutoFarm()
 	{
-		LOGGER.info("Loading auto farm configuration files.");
+		LOGGER.info("Carregando arquivos de configuração do auto farm.");
 
-		// login settings
+		// configurações de login
 		loadAutoFarmManager();
 	}
 
@@ -1287,14 +1290,14 @@ public final class Config
 			StringTokenizer st = new StringTokenizer(configLine, ";");
 			while (st.hasMoreTokens())
 			{
-				// Get allowed class change.
+				// Obtém a mudança de classe permitida.
 				int job = Integer.parseInt(st.nextToken());
 				
 				_allowedClassChange.put(job, true);
 				
 				List<IntIntHolder> items = new ArrayList<>();
 				
-				// Parse items needed for class change.
+				// Analisa os itens necessários para a mudança de classe.
 				if (st.hasMoreTokens())
 				{
 					StringTokenizer st2 = new StringTokenizer(st.nextToken(), "[],");
@@ -1305,11 +1308,11 @@ public final class Config
 					}
 				}
 				
-				// Feed the map, and clean the list.
+				// Alimenta o mapa e limpa a lista.
 				_claimItems.put(job, items);
 				items = new ArrayList<>();
 				
-				// Parse gifts after class change.
+				// Analisa os presentes após a mudança de classe.
 				if (st.hasMoreTokens())
 				{
 					StringTokenizer st2 = new StringTokenizer(st.nextToken(), "[],");

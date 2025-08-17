@@ -4,6 +4,9 @@ import net.sf.l2j.loginserver.enums.LoginClientState;
 import net.sf.l2j.loginserver.network.serverpackets.GGAuth;
 import net.sf.l2j.loginserver.network.serverpackets.LoginFail;
 
+/**
+ * Este pacote é enviado pelo cliente para autenticar com o GameGuard.
+ */
 public class AuthGameGuard extends L2LoginClientPacket
 {
 	private int _sessionId;
@@ -40,6 +43,7 @@ public class AuthGameGuard extends L2LoginClientPacket
 	@Override
 	protected boolean readImpl()
 	{
+		// Lê os 20 bytes de dados do GameGuard.
 		if (super._buf.remaining() >= 20)
 		{
 			_sessionId = readD();
@@ -55,12 +59,18 @@ public class AuthGameGuard extends L2LoginClientPacket
 	@Override
 	public void run()
 	{
+		// Compara o ID da sessão recebido com o ID da sessão do cliente no servidor.
 		if (_sessionId == getClient().getSessionId())
 		{
+			// Se corresponderem, atualiza o estado do cliente para AUTHED_GG (autenticado no GameGuard).
 			getClient().setState(LoginClientState.AUTHED_GG);
+			// Envia uma resposta de sucesso na autenticação do GameGuard.
 			getClient().sendPacket(new GGAuth(getClient().getSessionId()));
 		}
 		else
+		{
+			// Se não corresponderem, fecha a conexão.
 			getClient().close(LoginFail.REASON_ACCESS_FAILED);
+		}
 	}
 }

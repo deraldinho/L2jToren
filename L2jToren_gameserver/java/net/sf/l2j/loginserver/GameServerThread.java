@@ -37,23 +37,30 @@ import net.sf.l2j.loginserver.network.loginserverpackets.LoginServerFail;
 import net.sf.l2j.loginserver.network.loginserverpackets.PlayerAuthResponse;
 import net.sf.l2j.loginserver.network.serverpackets.ServerBasePacket;
 
+/**
+ * Representa a thread de comunicação entre o Login Server e um único Game Server.
+ */
 public class GameServerThread extends Thread
 {
 	private static final CLogger LOGGER = new CLogger(GameServerThread.class.getName());
 	
+	// Conjunto de contas atualmente online neste Game Server.
 	private final Set<String> _accountsOnGameServer = new HashSet<>();
 	
 	private final Socket _connection;
 	private final String _connectionIp;
 	
+	// Chaves RSA para a troca inicial de chaves de criptografia.
 	private final RSAPublicKey _publicKey;
 	private final RSAPrivateKey _privateKey;
 	
 	private InputStream _in;
 	private OutputStream _out;
 	
+	// Criptografia Blowfish para a comunicação de pacotes.
 	private NewCrypt _blowfish;
 	
+	// Informações sobre o Game Server conectado.
 	private GameServerInfo _gsi;
 	
 	public GameServerThread(Socket con)
@@ -61,22 +68,22 @@ public class GameServerThread extends Thread
 		_connection = con;
 		_connectionIp = con.getInetAddress().getHostAddress();
 		
-		try
+try
 		{
 			_in = _connection.getInputStream();
 			_out = new BufferedOutputStream(_connection.getOutputStream());
 		}
 		catch (IOException e)
 		{
-			LOGGER.error("Couldn't obtain gameserver input/output streams.", e);
-			// No System.exit(1) here, as it's a thread and other threads might be running.
+			LOGGER.error("Não foi possível obter os streams de entrada/saída do gameserver.", e);
 		}
 		
+		// Obtém um par de chaves do gerenciador para a comunicação RSA.
 		final KeyPair pair = GameServerManager.getInstance().getKeyPair();
-		
 		_privateKey = (RSAPrivateKey) pair.getPrivate();
 		_publicKey = (RSAPublicKey) pair.getPublic();
 		
+		// Inicializa a criptografia com uma chave estática temporária.
 		_blowfish = new NewCrypt("_;v.]05-31!|+-%xT!^[$\00");
 		
 		start();
@@ -85,16 +92,17 @@ public class GameServerThread extends Thread
 	@Override
 	public void run()
 	{
-		// Ensure no further processing for this connection if server is considered as banned.
+		// Garante que não haverá mais processamento para esta conexão se o servidor for considerado banido.
 		if (IpBanManager.getInstance().isBannedAddress(_connection.getInetAddress()))
 		{
-			LOGGER.info("Banned gameserver with IP {} tried to register.", _connection.getInetAddress().getHostAddress());
+			LOGGER.info("O gameserver banido com o IP {} tentou se registrar.", _connection.getInetAddress().getHostAddress());
 			forceClose(LoginServerFail.REASON_IP_BANNED);
 			return;
 		}
 		
-		try
+try
 		{
+			// Envia o pacote de inicialização com a chave pública RSA.
 			sendPacket(new InitLS(_publicKey.getModulus().toByteArray()));
 			
 			int lengthHi = 0;
@@ -103,6 +111,7 @@ public class GameServerThread extends Thread
 			boolean checksumOk = false;
 			for (;;)
 			{
+				// Lê o tamanho do pacote.
 				lengthLo = _in.read();
 				lengthHi = _in.read();
 				length = lengthHi * 256 + lengthLo;
@@ -114,6 +123,7 @@ public class GameServerThread extends Thread
 				
 				int receivedBytes = 0;
 				int newBytes = 0;
+				// Lê os dados do pacote.
 				while (newBytes != -1 && receivedBytes < length - 2)
 				{
 					newBytes = _in.read(data, 0, length - 2);
@@ -123,77 +133,88 @@ public class GameServerThread extends Thread
 				if (receivedBytes != length - 2)
 					break;
 				
-				// Decrypt if we have a key.
+				// Descriptografa se já tivermos uma chave Blowfish.
 				_blowfish.decrypt(data, 0, data.length);
 				
+				// Verifica o checksum para garantir a integridade dos dados.
 				checksumOk = NewCrypt.verifyChecksum(data);
 				if (!checksumOk)
 				{
-					LOGGER.warn("Checksum failed for gameserver {}. Closing connection.", _connectionIp);
+					LOGGER.warn("Checksum falhou para o gameserver {}. Fechando conexão.", _connectionIp);
 					forceClose(LoginServerFail.REASON_BAD_CHECKSUM);
 					return;
 				}
 				
+				// Processa o pacote com base no seu opcode.
 				int packetType = data[0] & 0xff;
 				switch (packetType)
 				{
-					case 00:
+					case 0x00: // BlowFishKey
 						onReceiveBlowfishKey(data);
 						break;
 					
-					case 01:
+					case 0x01: // GameServerAuth
 						onGameServerAuth(data);
 						break;
 					
-					case 02:
+					case 0x02: // PlayerInGame
 						onReceivePlayerInGame(data);
 						break;
 					
-					case 03:
+					case 0x03: // PlayerLogout
 						onReceivePlayerLogOut(data);
 						break;
 					
-					case 04:
+					case 0x04: // ChangeAccessLevel
 						onReceiveChangeAccessLevel(data);
 						break;
 					
-					case 05:
+					case 0x05: // PlayerAuthRequest
 						onReceivePlayerAuthRequest(data);
 						break;
 					
-					case 06:
+					case 0x06: // ServerStatus
 						onReceiveServerStatus(data);
 						break;
 					
-					default:
-						LOGGER.warn("Unknown opcode ({}) from gameserver, closing connection.", Integer.toHexString(packetType).toUpperCase());
+default:
+						LOGGER.warn("Opcode desconhecido ({}) do gameserver, fechando conexão.", Integer.toHexString(packetType).toUpperCase());
 						forceClose(LoginServerFail.NOT_AUTHED);
 				}
 			}
 		}
 		catch (IOException e)
 		{
-			LOGGER.debug("Couldn't process packet.", e);
+			LOGGER.debug("Não foi possível processar o pacote.", e);
 		}
 		finally
 		{
+			// Se o gameserver estava autenticado, marca-o como desconectado.
 			if (isAuthed())
 			{
 				_gsi.setDown();
-				LOGGER.info("GameServer [{}] {} is now set as disconnected.", getServerId(), GameServerManager.getInstance().getServerNames().get(getServerId()));
+				LOGGER.info("GameServer [{}] {} foi definido como desconectado.", getServerId(), GameServerManager.getInstance().getServerNames().get(getServerId()));
 			}
+			// Remove o gameserver da lista de listeners.
 			LoginServer.getInstance().getGameServerListener().removeGameServer(this);
 			LoginServer.getInstance().getGameServerListener().removeFloodProtection(_connectionIp);
 		}
 	}
 	
+	/**
+	 * Chamado ao receber a chave Blowfish do Game Server.
+	 * @param data Os dados do pacote.
+	 */
 	private void onReceiveBlowfishKey(byte[] data)
 	{
 		final BlowFishKey bfk = new BlowFishKey(data, _privateKey);
-		
 		_blowfish = new NewCrypt(bfk.getKey());
 	}
 	
+	/**
+	 * Chamado ao receber o pacote de autenticação do Game Server.
+	 * @param data Os dados do pacote.
+	 */
 	private void onGameServerAuth(byte[] data)
 	{
 		handleRegProcess(new GameServerAuth(data));
@@ -202,12 +223,15 @@ public class GameServerThread extends Thread
 			sendPacket(new AuthResponse(_gsi.getId()));
 	}
 	
+	/**
+	 * Chamado ao receber a lista de jogadores no jogo.
+	 * @param data Os dados do pacote.
+	 */
 	private void onReceivePlayerInGame(byte[] data)
 	{
 		if (isAuthed())
 		{
 			final PlayerInGame pig = new PlayerInGame(data);
-			
 			for (String account : pig.getAccounts())
 				_accountsOnGameServer.add(account);
 		}
@@ -215,31 +239,41 @@ public class GameServerThread extends Thread
 			forceClose(LoginServerFail.NOT_AUTHED);
 	}
 	
+	/**
+	 * Chamado quando um jogador desloga do Game Server.
+	 * @param data Os dados do pacote.
+	 */
 	private void onReceivePlayerLogOut(byte[] data)
 	{
 		if (isAuthed())
 		{
 			final PlayerLogout plo = new PlayerLogout(data);
-			
 			_accountsOnGameServer.remove(plo.getAccount());
 		}
 		else
 			forceClose(LoginServerFail.NOT_AUTHED);
 	}
 	
+	/**
+	 * Chamado quando o Game Server solicita uma mudança de nível de acesso para uma conta.
+	 * @param data Os dados do pacote.
+	 */
 	private void onReceiveChangeAccessLevel(byte[] data)
 	{
 		if (isAuthed())
 		{
 			final ChangeAccessLevel cal = new ChangeAccessLevel(data);
-			
 			AccountTable.getInstance().setAccountAccessLevel(cal.getAccount(), cal.getLevel());
-			LOGGER.info("Changed {} access level to {}.", cal.getAccount(), cal.getLevel());
+			LOGGER.info("Nível de acesso da conta {} alterado para {}.", cal.getAccount(), cal.getLevel());
 		}
 		else
 			forceClose(LoginServerFail.NOT_AUTHED);
 	}
 	
+	/**
+	 * Chamado quando o Game Server solicita a autenticação de um jogador.
+	 * @param data Os dados do pacote.
+	 */
 	private void onReceivePlayerAuthRequest(byte[] data)
 	{
 		if (isAuthed())
@@ -259,27 +293,35 @@ public class GameServerThread extends Thread
 			forceClose(LoginServerFail.NOT_AUTHED);
 	}
 	
+	/**
+	 * Chamado ao receber uma atualização de status do Game Server.
+	 * @param data Os dados do pacote.
+	 */
 	private void onReceiveServerStatus(byte[] data)
 	{
 		if (isAuthed())
-			new ServerStatus(data, getServerId()); // will do the actions by itself
+			new ServerStatus(data, getServerId()); // A própria classe fará as ações.
 		else
 			forceClose(LoginServerFail.NOT_AUTHED);
 	}
 	
+	/**
+	 * Lida com o processo de registro do Game Server.
+	 * @param gameServerAuth O pacote de autenticação do Game Server.
+	 */
 	private void handleRegProcess(GameServerAuth gameServerAuth)
 	{
 		final int id = gameServerAuth.getDesiredID();
 		final byte[] hexId = gameServerAuth.getHexID();
 		
 		GameServerInfo gsi = GameServerManager.getInstance().getRegisteredGameServers().get(id);
-		// is there a gameserver registered with this id?
+		// Existe um gameserver registrado com este id?
 		if (gsi != null)
 		{
-			// does the hex id match?
+			// O hex id corresponde?
 			if (Arrays.equals(gsi.getHexId(), hexId))
 			{
-				// check to see if this GS is already connected
+				// Verifica se este GS já está conectado.
 				synchronized (gsi)
 				{
 					if (gsi.isAuthed())
@@ -290,8 +332,8 @@ public class GameServerThread extends Thread
 			}
 			else
 			{
-				// there is already a server registered with the desired id and different hex id
-				// try to register this one with an alternative id
+				// Já existe um servidor registrado com o id desejado e hex id diferente.
+				// Tenta registrar este com um id alternativo.
 				if (Config.ACCEPT_NEW_GAMESERVER && gameServerAuth.acceptAlternateID())
 				{
 					gsi = new GameServerInfo(id, hexId, this);
@@ -303,14 +345,14 @@ public class GameServerThread extends Thread
 					else
 						forceClose(LoginServerFail.REASON_NO_FREE_ID);
 				}
-				// server id is already taken, and we cant get a new one for you
+				// O id do servidor já está em uso e não podemos obter um novo para você.
 				else
 					forceClose(LoginServerFail.REASON_WRONG_HEXID);
 			}
 		}
 		else
 		{
-			// can we register on this id?
+			// Podemos registrar neste id?
 			if (Config.ACCEPT_NEW_GAMESERVER)
 			{
 				gsi = new GameServerInfo(id, hexId, this);
@@ -319,7 +361,7 @@ public class GameServerThread extends Thread
 					attachGameServerInfo(gsi, gameServerAuth);
 					GameServerManager.getInstance().registerServerOnDB(gsi);
 				}
-				// some one took this ID meanwhile
+				// Alguém pegou este ID enquanto isso.
 				else
 					forceClose(LoginServerFail.REASON_ID_RESERVED);
 			}
@@ -329,11 +371,11 @@ public class GameServerThread extends Thread
 	}
 	
 	/**
-	 * Attachs a GameServerInfo to this Thread
-	 * <li>Updates the GameServerInfo values based on GameServerAuth packet</li>
-	 * <li><b>Sets the GameServerInfo as Authed</b></li>
-	 * @param gsi The GameServerInfo to be attached.
-	 * @param gameServerAuth The server info.
+	 * Anexa um GameServerInfo a esta Thread.
+	 * <li>Atualiza os valores do GameServerInfo com base no pacote GameServerAuth.</li>
+	 * <li><b>Define o GameServerInfo como Autenticado.</b></li>
+	 * @param gsi O GameServerInfo a ser anexado.
+	 * @param gameServerAuth As informações do servidor.
 	 */
 	private void attachGameServerInfo(GameServerInfo gsi, GameServerAuth gameServerAuth)
 	{
@@ -349,7 +391,7 @@ public class GameServerThread extends Thread
 			}
 			catch (UnknownHostException e)
 			{
-				LOGGER.error("Couldn't resolve hostname '{}'.", e, gameServerAuth.getHostName());
+				LOGGER.error("Não foi possível resolver o hostname '{}'.", e, gameServerAuth.getHostName());
 				_gsi.setHostName(_connectionIp);
 			}
 		}
@@ -359,23 +401,31 @@ public class GameServerThread extends Thread
 		gsi.setMaxPlayers(gameServerAuth.getMaxPlayers());
 		gsi.setAuthed(true);
 		
-		LOGGER.info("Hooked [{}] {} gameserver on: {}.", getServerId(), GameServerManager.getInstance().getServerNames().get(getServerId()), _gsi.getHostName());
+		LOGGER.info("Gameserver [{}] {} conectado em: {}.", getServerId(), GameServerManager.getInstance().getServerNames().get(getServerId()), _gsi.getHostName());
 	}
 	
+	/**
+	 * Força o fechamento da conexão com o Game Server.
+	 * @param reason O motivo do fechamento.
+	 */
 	private void forceClose(int reason)
 	{
 		sendPacket(new LoginServerFail(reason));
 		
-		try
+try
 		{
 			_connection.close();
 		}
 		catch (IOException e)
 		{
-			LOGGER.debug("Failed disconnecting banned server, server is already disconnected.", e);
+			LOGGER.debug("Falha ao desconectar o servidor banido, o servidor já está desconectado.", e);
 		}
 	}
 	
+	/**
+	 * Envia um pacote para o Game Server.
+	 * @param sl O pacote a ser enviado.
+	 */
 	private void sendPacket(ServerBasePacket sl)
 	{
 		try
@@ -393,27 +443,41 @@ public class GameServerThread extends Thread
 				_out.flush();
 			}
 		}
-				catch (IOException e)
+		catch (IOException e)
 		{
-			LOGGER.error("Exception while sending packet {}.", e, sl.getClass().getSimpleName());
+			LOGGER.error("Exceção ao enviar o pacote {}.", e, sl.getClass().getSimpleName());
 		}
 	}
 	
+	/**
+	 * @param account O nome da conta.
+	 * @return True se a conta estiver neste Game Server, false caso contrário.
+	 */
 	public boolean hasAccountOnGameServer(String account)
 	{
 		return _accountsOnGameServer.contains(account);
 	}
 	
+	/**
+	 * @return A contagem de jogadores neste Game Server.
+	 */
 	public int getPlayerCount()
 	{
 		return _accountsOnGameServer.size();
 	}
 	
+	/**
+	 * Expulsa um jogador do Game Server.
+	 * @param account O nome da conta a ser expulsa.
+	 */
 	public void kickPlayer(String account)
 	{
 		sendPacket(new KickPlayer(account));
 	}
 	
+	/**
+	 * @return True se o Game Server estiver autenticado.
+	 */
 	public boolean isAuthed()
 	{
 		return _gsi != null && _gsi.isAuthed();
