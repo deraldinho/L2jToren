@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.sql.SQLException; // Added this line
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -263,8 +264,15 @@ default:
 		if (isAuthed())
 		{
 			final ChangeAccessLevel cal = new ChangeAccessLevel(data);
-			AccountTable.getInstance().setAccountAccessLevel(cal.getAccount(), cal.getLevel());
-			LOGGER.info("Nível de acesso da conta {} alterado para {}.", cal.getAccount(), cal.getLevel());
+			try
+			{
+				AccountTable.getInstance().setAccountAccessLevel(cal.getAccount(), cal.getLevel());
+				LOGGER.info("Nível de acesso da conta {} alterado para {}.", cal.getAccount(), cal.getLevel());
+			}
+			catch (SQLException e)
+			{
+				LOGGER.error("Erro de SQL ao alterar o nível de acesso da conta {} para {}.", e, cal.getAccount(), cal.getLevel());
+			}
 		}
 		else
 			forceClose(LoginServerFail.NOT_AUTHED);

@@ -1,7 +1,9 @@
 package net.sf.l2j.loginserver.model;
 
 import java.net.InetAddress;
+import java.sql.SQLException; // Added this line
 
+import net.sf.l2j.commons.logging.CLogger; // Added this line
 import net.sf.l2j.commons.network.ServerType;
 
 import net.sf.l2j.loginserver.data.manager.GameServerManager;
@@ -9,6 +11,8 @@ import net.sf.l2j.loginserver.data.sql.AccountTable;
 
 public final class Account
 {
+	private static final CLogger LOGGER = new CLogger(Account.class.getName()); // Added this line
+
 	private final String _login;
 	private final String _password;
 	
@@ -70,7 +74,16 @@ public final class Account
 		// GM_ONLY status or full server only allows superior access levels accounts to login. Otherwise, any positive access level account can login.
 		final boolean canLogin = (type == ServerType.GM_ONLY || gsi.getCurrentPlayerCount() >= gsi.getMaxPlayers()) ? _accessLevel > 0 : _accessLevel >= 0;
 		if (canLogin && _lastServer != serverId)
-			AccountTable.getInstance().setAccountLastServer(_login, serverId);
+		{
+			try
+			{
+				AccountTable.getInstance().setAccountLastServer(_login, serverId);
+			}
+			catch (SQLException e)
+			{
+				LOGGER.error("Erro de SQL ao definir o último servidor para a conta {}.", e, _login);
+			}
+		}
 		
 		return canLogin;
 	}

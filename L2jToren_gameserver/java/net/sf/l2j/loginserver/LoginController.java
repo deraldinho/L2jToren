@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 import java.security.KeyPairGenerator;
 import java.security.spec.RSAKeyGenParameterSpec;
+import java.sql.SQLException; // Added this line
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -155,7 +156,17 @@ public class LoginController
 		final long currentTime = System.currentTimeMillis();
 		
 		// Recupera ou cria (se a criação automática estiver ativada) uma conta com base no login e senha fornecidos.
-		Account account = AccountTable.getInstance().getAccount(login);
+		Account account = null;
+		try
+		{
+			account = AccountTable.getInstance().getAccount(login);
+		}
+		catch (SQLException e)
+		{
+			LOGGER.error("Erro de SQL ao recuperar informações da conta para {}.", e, login);
+			client.close(LoginFail.REASON_ACCESS_FAILED);
+			return;
+		}
 		
 		if (account == null)
 		{
@@ -168,7 +179,16 @@ public class LoginController
 			}
 			
 			// Gera uma conta e alimenta a variável.
-			account = AccountTable.getInstance().createAccount(login, BCrypt.hashPw(password), currentTime);
+			try
+			{
+				account = AccountTable.getInstance().createAccount(login, BCrypt.hashPw(password), currentTime);
+			}
+			catch (SQLException e)
+			{
+				LOGGER.error("Erro de SQL ao criar a conta para {}.", e, login);
+				client.close(LoginFail.REASON_ACCESS_FAILED);
+				return;
+			}
 			if (account == null)
 			{
 				client.close(LoginFail.REASON_ACCESS_FAILED);
@@ -194,8 +214,17 @@ public class LoginController
 			_failedAttempts.remove(addr);
 			
 			// Atualiza a hora do último acesso da conta.
-			if (!AccountTable.getInstance().setAccountLastTime(login, currentTime))
+			try
 			{
+				if (!AccountTable.getInstance().setAccountLastTime(login, currentTime))
+				{
+					client.close(LoginFail.REASON_ACCESS_FAILED);
+					return;
+				}
+			}
+			catch (SQLException e)
+			{
+				LOGGER.error("Erro de SQL ao atualizar o último acesso da conta para {}.", e, login);
 				client.close(LoginFail.REASON_ACCESS_FAILED);
 				return;
 			}

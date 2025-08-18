@@ -3,6 +3,7 @@ package net.sf.l2j.loginserver.data.sql;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException; // Added this line
 
 import net.sf.l2j.commons.logging.CLogger;
 import net.sf.l2j.commons.pool.ConnectionPool;
@@ -31,7 +32,7 @@ public class AccountTable
 	 * @param login O login da conta a ser recuperada.
 	 * @return Uma nova instância de {@link Account} com as informações da conta, ou null se não existir.
 	 */
-	public Account getAccount(String login)
+	public Account getAccount(String login) throws SQLException
 	{
 		try (Connection con = ConnectionPool.getConnection();
 			PreparedStatement ps = con.prepareStatement(SELECT_ACCOUNT))
@@ -44,9 +45,10 @@ public class AccountTable
 					return new Account(login, rs.getString("password"), rs.getInt("access_level"), rs.getInt("last_server"));
 			}
 		}
-		catch (Exception e)
+		catch (SQLException e)
 		{
 			LOGGER.error("Exceção ao recuperar informações da conta.", e);
+			throw e;
 		}
 		return null;
 	}
@@ -58,7 +60,7 @@ public class AccountTable
 	 * @param currentTime O timestamp da criação da conta.
 	 * @return Uma nova instância de {@link Account} representando a conta criada, ou null se ocorrer um problema.
 	 */
-	public Account createAccount(String login, String hashed, long currentTime)
+	public Account createAccount(String login, String hashed, long currentTime) throws SQLException
 	{
 		try (Connection con = ConnectionPool.getConnection();
 			PreparedStatement ps = con.prepareStatement(INSERT_ACCOUNT))
@@ -68,10 +70,10 @@ public class AccountTable
 			ps.setLong(3, currentTime);
 			ps.execute();
 		}
-		catch (Exception e)
+		catch (SQLException e)
 		{
 			LOGGER.error("Exceção ao criar a conta para {}.", e, login);
-			return null;
+			throw e;
 		}
 		
 		// Gera uma nova instância de Account.
@@ -84,7 +86,7 @@ public class AccountTable
 	 * @param currentTime O novo timestamp de último acesso.
 	 * @return True se a atualização for bem-sucedida, false caso contrário.
 	 */
-	public boolean setAccountLastTime(String login, long currentTime)
+	public boolean setAccountLastTime(String login, long currentTime) throws SQLException
 	{
 		try (Connection con = ConnectionPool.getConnection();
 			PreparedStatement ps = con.prepareStatement(UPDATE_ACCOUNT_LAST_TIME))
@@ -93,10 +95,10 @@ public class AccountTable
 			ps.setString(2, login);
 			ps.execute();
 		}
-		catch (Exception e)
+		catch (SQLException e)
 		{
 			LOGGER.error("Exceção ao atualizar o último acesso da conta {}.", e, login);
-			return false;
+			throw e;
 		}
 		return true;
 	}
@@ -106,7 +108,7 @@ public class AccountTable
 	 * @param login O login da conta a ser atualizada.
 	 * @param level O novo nível de acesso a ser definido.
 	 */
-	public void setAccountAccessLevel(String login, int level)
+	public void setAccountAccessLevel(String login, int level) throws SQLException
 	{
 		try (Connection con = ConnectionPool.getConnection();
 			PreparedStatement ps = con.prepareStatement(UPDATE_ACCOUNT_ACCESS_LEVEL))
@@ -115,9 +117,10 @@ public class AccountTable
 			ps.setString(2, login);
 			ps.executeUpdate();
 		}
-		catch (Exception e)
+		catch (SQLException e)
 		{
 			LOGGER.error("Não foi possível definir o nível de acesso {} para {}.", e, level, login);
+			throw e;
 		}
 	}
 	
@@ -126,7 +129,7 @@ public class AccountTable
 	 * @param login O login da conta a ser atualizada.
 	 * @param serverId O ID do último servidor acessado.
 	 */
-	public void setAccountLastServer(String login, int serverId)
+	public void setAccountLastServer(String login, int serverId) throws SQLException
 	{
 		try (Connection con = ConnectionPool.getConnection();
 			PreparedStatement ps = con.prepareStatement(UPDATE_ACCOUNT_LAST_SERVER))
@@ -135,9 +138,10 @@ public class AccountTable
 			ps.setString(2, login);
 			ps.executeUpdate();
 		}
-		catch (Exception e)
+		catch (SQLException e)
 		{
 			LOGGER.error("Não foi possível definir o último servidor.", e);
+			throw e;
 		}
 	}
 	

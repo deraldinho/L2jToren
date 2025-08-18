@@ -11,6 +11,7 @@ import net.sf.l2j.loginserver.network.clientpackets.AuthGameGuard;
 import net.sf.l2j.loginserver.network.clientpackets.RequestAuthLogin;
 import net.sf.l2j.loginserver.network.clientpackets.RequestServerList;
 import net.sf.l2j.loginserver.network.clientpackets.RequestServerLogin;
+import net.sf.l2j.loginserver.network.serverpackets.LoginFail; // Added this line
 
 /**
  * O manipulador de pacotes para o Login Server. É responsável por determinar qual pacote
@@ -37,7 +38,10 @@ public final class LoginPacketHandler implements IPacketHandler<LoginClient>
 				if (opcode == 0x07)
 					packet = new AuthGameGuard();
 				else
+				{
 					debugOpcode(opcode, state);
+					client.close(LoginFail.REASON_ACCESS_FAILED);
+				}
 				break;
 			
 			case AUTHED_GG:
@@ -45,7 +49,10 @@ public final class LoginPacketHandler implements IPacketHandler<LoginClient>
 				if (opcode == 0x00)
 					packet = new RequestAuthLogin();
 				else
+				{
 					debugOpcode(opcode, state);
+					client.close(LoginFail.REASON_ACCESS_FAILED);
+				}
 				break;
 			
 			case AUTHED_LOGIN:
@@ -55,7 +62,10 @@ public final class LoginPacketHandler implements IPacketHandler<LoginClient>
 				else if (opcode == 0x02)
 					packet = new RequestServerLogin();
 				else
+				{
 					debugOpcode(opcode, state);
+					client.close(LoginFail.REASON_ACCESS_FAILED);
+				}
 				break;
 		}
 		return packet;
