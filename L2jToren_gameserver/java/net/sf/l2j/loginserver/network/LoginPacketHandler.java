@@ -11,7 +11,7 @@ import net.sf.l2j.loginserver.network.clientpackets.AuthGameGuard;
 import net.sf.l2j.loginserver.network.clientpackets.RequestAuthLogin;
 import net.sf.l2j.loginserver.network.clientpackets.RequestServerList;
 import net.sf.l2j.loginserver.network.clientpackets.RequestServerLogin;
-import net.sf.l2j.loginserver.network.serverpackets.LoginFail; // Added this line
+import net.sf.l2j.loginserver.network.serverpackets.LoginFail;
 
 /**
  * O manipulador de pacotes para o Login Server. É responsável por determinar qual pacote
@@ -20,6 +20,12 @@ import net.sf.l2j.loginserver.network.serverpackets.LoginFail; // Added this lin
 public final class LoginPacketHandler implements IPacketHandler<LoginClient>
 {
 	private static final CLogger LOGGER = new CLogger(LoginPacketHandler.class.getName());
+	
+	// Opcodes dos pacotes do cliente
+	private static final int C_REQUEST_AUTH_LOGIN = 0x00;
+	private static final int C_REQUEST_SERVER_LOGIN = 0x02;
+	private static final int C_REQUEST_SERVER_LIST = 0x05;
+	private static final int C_AUTH_GAME_GUARD = 0x07;
 	
 	@Override
 	public ReceivablePacket<LoginClient> handlePacket(ByteBuffer buf, LoginClient client)
@@ -35,7 +41,7 @@ public final class LoginPacketHandler implements IPacketHandler<LoginClient>
 		{
 			case CONNECTED:
 				// No estado inicial, apenas a autenticação do GameGuard é esperada.
-				if (opcode == 0x07)
+				if (opcode == C_AUTH_GAME_GUARD)
 					packet = new AuthGameGuard();
 				else
 				{
@@ -46,7 +52,7 @@ public final class LoginPacketHandler implements IPacketHandler<LoginClient>
 			
 			case AUTHED_GG:
 				// Após a autenticação do GameGuard, o pedido de login é esperado.
-				if (opcode == 0x00)
+				if (opcode == C_REQUEST_AUTH_LOGIN)
 					packet = new RequestAuthLogin();
 				else
 				{
@@ -57,9 +63,9 @@ public final class LoginPacketHandler implements IPacketHandler<LoginClient>
 			
 			case AUTHED_LOGIN:
 				// Após o login bem-sucedido, o cliente pode solicitar a lista de servidores ou o login em um servidor.
-				if (opcode == 0x05)
+				if (opcode == C_REQUEST_SERVER_LIST)
 					packet = new RequestServerList();
-				else if (opcode == 0x02)
+				else if (opcode == C_REQUEST_SERVER_LOGIN)
 					packet = new RequestServerLogin();
 				else
 				{

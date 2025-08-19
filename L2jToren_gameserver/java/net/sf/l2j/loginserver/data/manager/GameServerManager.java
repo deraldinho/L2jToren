@@ -62,7 +62,7 @@ public class GameServerManager implements IXmlReader
 		
 		// Inicializa os pares de chaves RSA.
 		initRSAKeys();
-		LOGGER.info("Cache de {} chaves RSA para comunicação com gameservers gerado.", _keyPairs.length);
+		LOGGER.info("Cache de {} chaves RSA (2048 bits) para comunicação com gameservers gerado.", _keyPairs.length);
 	}
 	
 	@Override
@@ -133,9 +133,8 @@ public class GameServerManager implements IXmlReader
 	{
 		for (int id : _serverNames.keySet())
 		{
-			if (!_registeredServers.containsKey(id))
+			if (_registeredServers.putIfAbsent(id, gsi) == null)
 			{
-				_registeredServers.put(id, gsi);
 				gsi.setId(id);
 				return true;
 			}

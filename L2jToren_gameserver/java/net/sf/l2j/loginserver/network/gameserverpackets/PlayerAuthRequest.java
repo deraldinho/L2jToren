@@ -1,9 +1,9 @@
 package net.sf.l2j.loginserver.network.gameserverpackets;
 
 import net.sf.l2j.loginserver.network.SessionKey;
-import net.sf.l2j.loginserver.network.clientpackets.ClientBasePacket;
+import net.sf.l2j.loginserver.network.clientpackets.IncomingPacketFromGameServer;
 
-public class PlayerAuthRequest extends ClientBasePacket
+public class PlayerAuthRequest extends IncomingPacketFromGameServer
 {
 	private final String _account;
 	private final SessionKey _sessionKey;

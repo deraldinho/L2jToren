@@ -62,7 +62,6 @@ public abstract class FloodProtectedListener extends Thread
 						if ((fc.attempts > Config.FAST_CONNECTION_LIMIT && (currentTime - fc.lastConnection) < Config.NORMAL_CONNECTION_TIME) || (currentTime - fc.lastConnection) < Config.FAST_CONNECTION_TIME || fc.attempts > Config.MAX_CONNECTION_PER_IP)
 						{
 							fc.lastConnection = currentTime;
-							fc.attempts -= 1;
 							
 							connection.close();
 							

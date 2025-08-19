@@ -3,9 +3,9 @@ package net.sf.l2j.loginserver.network.gameserverpackets;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.l2j.loginserver.network.clientpackets.ClientBasePacket;
+import net.sf.l2j.loginserver.network.clientpackets.IncomingPacketFromGameServer;
 
-public class PlayerInGame extends ClientBasePacket
+public class PlayerInGame extends IncomingPacketFromGameServer
 {
 	private final List<String> _accounts = new ArrayList<>();
 	

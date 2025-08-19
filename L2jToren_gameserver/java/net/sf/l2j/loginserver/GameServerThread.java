@@ -64,20 +64,13 @@ public class GameServerThread extends Thread
 	// Informações sobre o Game Server conectado.
 	private GameServerInfo _gsi;
 	
-	public GameServerThread(Socket con)
+		public GameServerThread(Socket con) throws IOException
 	{
 		_connection = con;
 		_connectionIp = con.getInetAddress().getHostAddress();
 		
-try
-		{
-			_in = _connection.getInputStream();
-			_out = new BufferedOutputStream(_connection.getOutputStream());
-		}
-		catch (IOException e)
-		{
-			LOGGER.error("Não foi possível obter os streams de entrada/saída do gameserver.", e);
-		}
+		_in = _connection.getInputStream();
+		_out = new BufferedOutputStream(_connection.getOutputStream());
 		
 		// Obtém um par de chaves do gerenciador para a comunicação RSA.
 		final KeyPair pair = GameServerManager.getInstance().getKeyPair();
@@ -314,68 +307,86 @@ default:
 	}
 	
 	/**
-	 * Lida com o processo de registro do Game Server.
+	 * Lida com o processo de registro do Game Server, delegando para sub-rotinas.
 	 * @param gameServerAuth O pacote de autenticação do Game Server.
 	 */
 	private void handleRegProcess(GameServerAuth gameServerAuth)
 	{
 		final int id = gameServerAuth.getDesiredID();
-		final byte[] hexId = gameServerAuth.getHexID();
+		final GameServerInfo gsi = GameServerManager.getInstance().getRegisteredGameServers().get(id);
 		
-		GameServerInfo gsi = GameServerManager.getInstance().getRegisteredGameServers().get(id);
-		// Existe um gameserver registrado com este id?
 		if (gsi != null)
+			handleRegisteredServer(gsi, gameServerAuth);
+		else
+			handleNewServer(gameServerAuth);
+	}
+	
+	/**
+	 * Lida com a autenticação de um Game Server que já está registrado (presente no DB).
+	 * @param gsi O GameServerInfo do servidor pré-registrado.
+	 * @param authPacket O pacote de autenticação.
+	 */
+	private void handleRegisteredServer(GameServerInfo gsi, GameServerAuth authPacket)
+	{
+		// O hex id corresponde?
+		if (Arrays.equals(gsi.getHexId(), authPacket.getHexID()))
 		{
-			// O hex id corresponde?
-			if (Arrays.equals(gsi.getHexId(), hexId))
+			// Verifica se este GS já está conectado.
+			synchronized (gsi)
 			{
-				// Verifica se este GS já está conectado.
-				synchronized (gsi)
-				{
-					if (gsi.isAuthed())
-						forceClose(LoginServerFail.REASON_ALREADY_LOGGED_IN);
-					else
-						attachGameServerInfo(gsi, gameServerAuth);
-				}
-			}
-			else
-			{
-				// Já existe um servidor registrado com o id desejado e hex id diferente.
-				// Tenta registrar este com um id alternativo.
-				if (Config.ACCEPT_NEW_GAMESERVER && gameServerAuth.acceptAlternateID())
-				{
-					gsi = new GameServerInfo(id, hexId, this);
-					if (GameServerManager.getInstance().registerWithFirstAvailableId(gsi))
-					{
-						attachGameServerInfo(gsi, gameServerAuth);
-						GameServerManager.getInstance().registerServerOnDB(gsi);
-					}
-					else
-						forceClose(LoginServerFail.REASON_NO_FREE_ID);
-				}
-				// O id do servidor já está em uso e não podemos obter um novo para você.
+				if (gsi.isAuthed())
+					forceClose(LoginServerFail.REASON_ALREADY_LOGGED_IN);
 				else
-					forceClose(LoginServerFail.REASON_WRONG_HEXID);
+					attachGameServerInfo(gsi, authPacket);
 			}
+		}
+		// HexId não corresponde. Tenta registrar com um ID alternativo se permitido.
+		else if (Config.ACCEPT_NEW_GAMESERVER && authPacket.acceptAlternateID())
+			registerWithAlternateId(authPacket);
+		// O id do servidor já está em uso e não podemos obter um novo para você.
+		else
+			forceClose(LoginServerFail.REASON_WRONG_HEXID);
+	}
+	
+	/**
+	 * Lida com a tentativa de registro de um Game Server completamente novo.
+	 * @param authPacket O pacote de autenticação.
+	 */
+	private void handleNewServer(GameServerAuth authPacket)
+	{
+		if (Config.ACCEPT_NEW_GAMESERVER)
+		{
+			final int id = authPacket.getDesiredID();
+			final byte[] hexId = authPacket.getHexID();
+			final GameServerInfo gsi = new GameServerInfo(id, hexId, this);
+			
+			if (GameServerManager.getInstance().register(id, gsi))
+			{
+				attachGameServerInfo(gsi, authPacket);
+				GameServerManager.getInstance().registerServerOnDB(gsi);
+			}
+			// Alguém pegou este ID enquanto isso (race condition).
+			else
+				forceClose(LoginServerFail.REASON_ID_RESERVED);
 		}
 		else
+			forceClose(LoginServerFail.REASON_WRONG_HEXID);
+	}
+	
+	/**
+	 * Tenta registrar um Game Server com um ID alternativo (o primeiro disponível).
+	 * @param authPacket O pacote de autenticação.
+	 */
+	private void registerWithAlternateId(GameServerAuth authPacket)
+	{
+		final GameServerInfo gsi = new GameServerInfo(authPacket.getDesiredID(), authPacket.getHexID(), this);
+		if (GameServerManager.getInstance().registerWithFirstAvailableId(gsi))
 		{
-			// Podemos registrar neste id?
-			if (Config.ACCEPT_NEW_GAMESERVER)
-			{
-				gsi = new GameServerInfo(id, hexId, this);
-				if (GameServerManager.getInstance().register(id, gsi))
-				{
-					attachGameServerInfo(gsi, gameServerAuth);
-					GameServerManager.getInstance().registerServerOnDB(gsi);
-				}
-				// Alguém pegou este ID enquanto isso.
-				else
-					forceClose(LoginServerFail.REASON_ID_RESERVED);
-			}
-			else
-				forceClose(LoginServerFail.REASON_WRONG_HEXID);
+			attachGameServerInfo(gsi, authPacket);
+			GameServerManager.getInstance().registerServerOnDB(gsi);
 		}
+		else
+			forceClose(LoginServerFail.REASON_NO_FREE_ID);
 	}
 	
 	/**

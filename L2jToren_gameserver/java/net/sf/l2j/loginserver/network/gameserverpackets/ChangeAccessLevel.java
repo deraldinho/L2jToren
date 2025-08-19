@@ -1,8 +1,8 @@
 package net.sf.l2j.loginserver.network.gameserverpackets;
 
-import net.sf.l2j.loginserver.network.clientpackets.ClientBasePacket;
+import net.sf.l2j.loginserver.network.clientpackets.IncomingPacketFromGameServer;
 
-public class ChangeAccessLevel extends ClientBasePacket
+public class ChangeAccessLevel extends IncomingPacketFromGameServer
 {
 	private final int _level;
 	private final String _account;

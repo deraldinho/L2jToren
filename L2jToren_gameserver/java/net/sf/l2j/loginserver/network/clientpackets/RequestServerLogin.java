@@ -6,6 +6,8 @@ import net.sf.l2j.loginserver.network.SessionKey;
 import net.sf.l2j.loginserver.network.serverpackets.LoginFail;
 import net.sf.l2j.loginserver.network.serverpackets.PlayFail;
 import net.sf.l2j.loginserver.network.serverpackets.PlayOk;
+import net.sf.l2j.loginserver.data.sql.AccountTable;
+import java.sql.SQLException;
 
 /**
  * Este pacote é enviado pelo cliente quando o usuário seleciona um servidor de jogo para entrar.
@@ -55,6 +57,16 @@ public class RequestServerLogin extends L2LoginClientPacket
 		{
 			getClient().close(PlayFail.REASON_TOO_MANY_PLAYERS);
 			return;
+		}
+		
+		// Se o login for bem-sucedido, atualiza o último servidor da conta no banco de dados.
+		try
+		{
+			AccountTable.getInstance().setAccountLastServer(account.getLogin(), _serverId);
+		}
+		catch (SQLException e)
+		{
+			LOGGER.error("Erro de SQL ao definir o último servidor para a conta {}.", e, account.getLogin());
 		}
 		
 		// Marca que o cliente entrou em um Game Server e envia a resposta final "PlayOk".

@@ -73,17 +73,6 @@ public final class Account
 		
 		// GM_ONLY status or full server only allows superior access levels accounts to login. Otherwise, any positive access level account can login.
 		final boolean canLogin = (type == ServerType.GM_ONLY || gsi.getCurrentPlayerCount() >= gsi.getMaxPlayers()) ? _accessLevel > 0 : _accessLevel >= 0;
-		if (canLogin && _lastServer != serverId)
-		{
-			try
-			{
-				AccountTable.getInstance().setAccountLastServer(_login, serverId);
-			}
-			catch (SQLException e)
-			{
-				LOGGER.error("Erro de SQL ao definir o último servidor para a conta {}.", e, _login);
-			}
-		}
 		
 		return canLogin;
 	}

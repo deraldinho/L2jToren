@@ -60,7 +60,7 @@ public class LoginController
 		try
 		{
 			final KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
-			final RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(1024, RSAKeyGenParameterSpec.F4);
+			final RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4);
 			
 			// Inicializa o gerador de pares de chaves.
 			keygen.initialize(spec);
@@ -69,7 +69,7 @@ public class LoginController
 			for (int i = 0; i < 10; i++)
 				_keyPairs[i] = new ScrambledKeyPair(keygen.generateKeyPair());
 			
-			LOGGER.info("Cache de 10 pares de chaves para comunicação RSA gerado.");
+			LOGGER.info("Cache de 10 pares de chaves RSA (2048 bits) para comunicação com o cliente gerado.");
 			
 			// Testa o cifrador.
 			final Cipher rsaCipher = Cipher.getInstance("RSA/ECB/nopadding");

@@ -1,8 +1,8 @@
 package net.sf.l2j.loginserver.network.gameserverpackets;
 
-import net.sf.l2j.loginserver.network.clientpackets.ClientBasePacket;
+import net.sf.l2j.loginserver.network.clientpackets.IncomingPacketFromGameServer;
 
-public class GameServerAuth extends ClientBasePacket
+public class GameServerAuth extends IncomingPacketFromGameServer
 {
 	private final byte[] _hexId;
 	private final int _desiredId;

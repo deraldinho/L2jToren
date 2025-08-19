@@ -5,9 +5,9 @@ import net.sf.l2j.commons.network.ServerType;
 
 import net.sf.l2j.loginserver.data.manager.GameServerManager;
 import net.sf.l2j.loginserver.model.GameServerInfo;
-import net.sf.l2j.loginserver.network.clientpackets.ClientBasePacket;
+import net.sf.l2j.loginserver.network.clientpackets.IncomingPacketFromGameServer;
 
-public class ServerStatus extends ClientBasePacket
+public class ServerStatus extends IncomingPacketFromGameServer
 {
 	private static final int ON = 0x01;
 	

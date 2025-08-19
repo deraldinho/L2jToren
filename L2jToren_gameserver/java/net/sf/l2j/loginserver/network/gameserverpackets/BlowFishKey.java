@@ -7,9 +7,9 @@ import javax.crypto.Cipher;
 
 import net.sf.l2j.commons.logging.CLogger;
 
-import net.sf.l2j.loginserver.network.clientpackets.ClientBasePacket;
+import net.sf.l2j.loginserver.network.clientpackets.IncomingPacketFromGameServer;
 
-public class BlowFishKey extends ClientBasePacket
+public class BlowFishKey extends IncomingPacketFromGameServer
 {
 	private static final CLogger LOGGER = new CLogger(BlowFishKey.class.getName());
 	
