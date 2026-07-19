@@ -4,6 +4,8 @@ import net.sf.l2j.loginserver.network.clientpackets.IncomingPacketFromGameServer
 
 public class GameServerAuth extends IncomingPacketFromGameServer
 {
+	private static final int HEX_ID_LENGTH = 16;
+	
 	private final byte[] _hexId;
 	private final int _desiredId;
 	private final boolean _hostReserved;
@@ -22,7 +24,11 @@ public class GameServerAuth extends IncomingPacketFromGameServer
 		_hostName = readS();
 		_port = readH();
 		_maxPlayers = readD();
-		int size = readD();
+		
+		final int size = readD();
+		if (size != HEX_ID_LENGTH)
+			throw new IllegalArgumentException("Invalid GameServer hexId size: " + size + ", expected: " + HEX_ID_LENGTH + ".");
+		
 		_hexId = readB(size);
 	}
 	

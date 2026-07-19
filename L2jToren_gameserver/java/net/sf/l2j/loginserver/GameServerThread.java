@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.sql.SQLException; // Added this line
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -64,7 +64,7 @@ public class GameServerThread extends Thread
 	// Informações sobre o Game Server conectado.
 	private GameServerInfo _gsi;
 	
-		public GameServerThread(Socket con) throws IOException
+	public GameServerThread(Socket con) throws IOException
 	{
 		_connection = con;
 		_connectionIp = con.getInetAddress().getHostAddress();
@@ -94,7 +94,7 @@ public class GameServerThread extends Thread
 			return;
 		}
 		
-try
+		try
 		{
 			// Envia o pacote de inicialização com a chave pública RSA.
 			sendPacket(new InitLS(_publicKey.getModulus().toByteArray()));
@@ -171,11 +171,15 @@ try
 						onReceiveServerStatus(data);
 						break;
 					
-default:
+					default:
 						LOGGER.warn("Opcode desconhecido ({}) do gameserver, fechando conexão.", Integer.toHexString(packetType).toUpperCase());
 						forceClose(LoginServerFail.NOT_AUTHED);
 				}
 			}
+		}
+		catch (IllegalArgumentException e)
+		{
+			LOGGER.warn("Pacote malformado recebido do gameserver {}. Fechando conexão: {}", _connectionIp, e.getMessage());
 		}
 		catch (IOException e)
 		{
@@ -183,6 +187,15 @@ default:
 		}
 		finally
 		{
+			try
+			{
+				_connection.close();
+			}
+			catch (IOException e)
+			{
+				LOGGER.debug("Falha ao fechar conexão do gameserver {}.", e, _connectionIp);
+			}
+			
 			// Se o gameserver estava autenticado, marca-o como desconectado.
 			if (isAuthed())
 			{
@@ -249,7 +262,7 @@ default:
 	}
 	
 	/**
-	 * Chamado quando o Game Server solicita uma mudança de nível de acesso para uma conta.
+	 * Chamado quando um jogador solicita uma mudança de nível de acesso para uma conta.
 	 * @param data Os dados do pacote.
 	 */
 	private void onReceiveChangeAccessLevel(byte[] data)
@@ -431,7 +444,7 @@ default:
 	{
 		sendPacket(new LoginServerFail(reason));
 		
-try
+		try
 		{
 			_connection.close();
 		}
@@ -487,7 +500,7 @@ try
 	
 	/**
 	 * Expulsa um jogador do Game Server.
-	 * @param account O nome da conta a ser expulsa.
+	 * @param account O nome da conta a ser expulso.
 	 */
 	public void kickPlayer(String account)
 	{
