@@ -19,8 +19,12 @@ public class BlowFishKey extends IncomingPacketFromGameServer
 	{
 		super(decrypt);
 		
-		int size = readD();
-		byte[] tempKey = readB(size);
+		final int size = readD();
+		final int expectedRsaBlockSize = (privateKey.getModulus().bitLength() + 7) / 8;
+		if (size != expectedRsaBlockSize)
+			throw new IllegalArgumentException("Invalid encrypted Blowfish key size: " + size + ", expected: " + expectedRsaBlockSize + ".");
+		
+		final byte[] tempKey = readB(size);
 		
 		try
 		{
@@ -29,20 +33,25 @@ public class BlowFishKey extends IncomingPacketFromGameServer
 			
 			final byte[] tempDecryptKey = rsaCipher.doFinal(tempKey);
 			
-			// there are nulls before the key we must remove them
+			// There are nulls before the key; remove only the leading padding bytes.
 			int i = 0;
-			int len = tempDecryptKey.length;
+			final int len = tempDecryptKey.length;
 			for (; i < len; i++)
 			{
 				if (tempDecryptKey[i] != 0)
 					break;
 			}
+			
+			if (i == len)
+				throw new IllegalArgumentException("Decrypted Blowfish key is empty.");
+			
 			_key = new byte[len - i];
 			System.arraycopy(tempDecryptKey, i, _key, 0, len - i);
 		}
 		catch (GeneralSecurityException e)
 		{
 			LOGGER.error("Couldn't decrypt blowfish key (RSA)", e);
+			throw new IllegalArgumentException("Couldn't decrypt Blowfish key.", e);
 		}
 	}
 	
