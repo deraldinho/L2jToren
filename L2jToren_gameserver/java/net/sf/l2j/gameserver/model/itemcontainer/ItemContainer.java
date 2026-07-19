@@ -191,17 +191,27 @@ public abstract class ItemContainer
 	 */
 	public ItemInstance addItem(ItemInstance item)
 	{
+		// If existing stackable item is found.
 		final ItemInstance oldItem = getItemByItemId(item.getItemId());
 		if (oldItem != null && oldItem.isStackable())
 		{
+			// Add to current ItemInstance the requested item quantity.
 			oldItem.changeCount(item.getCount(), getOwner());
+			
+			// Destroy the item.
 			item.destroyMe();
+			
+			// Return the existing ItemInstance.
 			return oldItem;
 		}
 		
+		// If item hasn't be found in inventory, set ownership and location.
 		item.setOwnerId(getOwnerId());
 		item.setLocation(getBaseLocation());
+		
+		// Add item in inventory.
 		addBasicItem(item);
+		
 		return item;
 	}
 	
@@ -215,8 +225,10 @@ public abstract class ItemContainer
 	{
 		ItemInstance item = getItemByItemId(itemId);
 		
+		// If existing stackable item is found, add to current ItemInstance the requested item quantity.
 		if (item != null && item.isStackable())
 			item.changeCount(count, getOwner());
+		// If item hasn't be found in inventory, create new one
 		else
 		{
 			final Item template = ItemData.getInstance().getTemplate(itemId);
@@ -228,7 +240,11 @@ public abstract class ItemContainer
 				item = ItemInstance.create(itemId, template.isStackable() ? count : 1);
 				item.setOwnerId(getOwnerId());
 				item.setLocation(getBaseLocation());
+				
+				// Add item in inventory
 				addBasicItem(item);
+				
+				// If stackable, end loop as entire count is included in 1 instance of item
 				if (template.isStackable() || !Config.MULTIPLE_ITEM_DROP)
 					break;
 			}
@@ -249,30 +265,39 @@ public abstract class ItemContainer
 		
 		synchronized (sourceItem)
 		{
+			// check if this item still present in this container
 			if (getItemByObjectId(objectId) != sourceItem)
 				return null;
 			
+			// Check if requested quantity is available
 			if (count > sourceItem.getCount())
 				count = sourceItem.getCount();
 			
+			// If possible, move entire item object
 			if (sourceItem.getCount() == count && targetItem == null)
 			{
 				removeItem(sourceItem, false);
+				
 				target.addItem(sourceItem);
 				targetItem = sourceItem;
 			}
 			else
 			{
+				// If possible, only update counts
 				if (sourceItem.getCount() > count)
 					sourceItem.changeCount(-count, getOwner());
 				else
+				// Otherwise destroy old item
 				{
 					removeItem(sourceItem, false);
+					
 					sourceItem.destroyMe();
 				}
 				
+				// If possible, only update counts
 				if (targetItem != null)
 					targetItem.changeCount(count, getOwner());
+				// Otherwise add new item
 				else
 					targetItem = target.addItem(sourceItem.getItemId(), count);
 			}
@@ -297,30 +322,39 @@ public abstract class ItemContainer
 		
 		synchronized (sourceitem)
 		{
+			// check if this item still present in this container
 			if (getItemByObjectId(objectId) != sourceitem)
 				return null;
 			
+			// Check if requested quantity is available
 			if (amount > sourceitem.getCount())
 				amount = sourceitem.getCount();
 			
+			// If possible, move entire item object
 			if (sourceitem.getCount() == amount && targetitem == null)
 			{
 				removeItem(sourceitem, false);
+				
 				inventory.addItem(sourceitem);
 				targetitem = sourceitem;
 			}
 			else
 			{
+				// If possible, only update counts
 				if (sourceitem.getCount() > amount)
 					sourceitem.changeCount(-amount, getOwner());
+				// Otherwise destroy old item
 				else
 				{
 					removeItem(sourceitem, false);
+					
 					sourceitem.destroyMe();
 				}
 				
+				// If possible, only update counts
 				if (targetitem != null)
 					targetitem.changeCount(amount, target);
+				// Otherwise add new item
 				else
 					targetitem = inventory.addItem(sourceitem.getItemId(), amount);
 			}
@@ -351,9 +385,11 @@ public abstract class ItemContainer
 		
 		synchronized (item)
 		{
+			// Adjust item quantity
 			if (item.getCount() > count)
 			{
 				item.changeCount(-count, getOwner());
+				
 				return item;
 			}
 			
@@ -427,6 +463,7 @@ public abstract class ItemContainer
 	protected void addBasicItem(ItemInstance item)
 	{
 		item.actualizeTime();
+		
 		_items.add(item);
 	}
 	
@@ -449,10 +486,16 @@ public abstract class ItemContainer
 	{
 		if (getOwner() != null)
 		{
+			// Delete all related items from World.
 			World.getInstance().removeObjects(_items);
+			
+			// Remove all ItemContainer items from ItemInstanceTaskManager to avoid them to be gathered and processed automatically by the delayed task.
 			ItemInstanceTaskManager.getInstance().removeItems(_items);
+			
+			// Instantly save all ItemContainer items current state, _items is cleared from the method.
 			ItemInstanceTaskManager.getInstance().updateItems(_items);
 		}
+		// Clear items.
 		else
 			_items.clear();
 	}
@@ -472,15 +515,19 @@ public abstract class ItemContainer
 			{
 				while (rs.next())
 				{
+					// Restore the item.
 					final ItemInstance item = ItemInstance.restoreFromDb(rs);
 					if (item == null)
 						continue;
 					
+					// ItemInstanceTaskManager didn't yet process the item, which means the item wasn't anymore part of this ItemContainer - don't reload it.
 					if (ItemInstanceTaskManager.getInstance().contains(item))
 						continue;
 					
+					// Add the item to world objects list.
 					World.getInstance().addObject(item);
 					
+					// If stackable item is found in inventory just add to current quantity
 					if (item.isStackable() && getItemByItemId(item.getItemId()) != null)
 						addItem(item);
 					else
