@@ -380,6 +380,9 @@ public abstract class ItemContainer
 	 */
 	public ItemInstance destroyItem(ItemInstance item, int count)
 	{
+		if (item == null || count <= 0)
+			return null;
+		
 		synchronized (item)
 		{
 			// Adjust item quantity
