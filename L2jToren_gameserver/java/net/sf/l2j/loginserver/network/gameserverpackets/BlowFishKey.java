@@ -19,6 +19,9 @@ public class BlowFishKey extends IncomingPacketFromGameServer
 	{
 		super(decrypt);
 		
+		if (privateKey == null)
+			throw new IllegalArgumentException("RSA private key cannot be null.");
+		
 		final int size = readD();
 		final int expectedRsaBlockSize = (privateKey.getModulus().bitLength() + 7) / 8;
 		if (size != expectedRsaBlockSize)
