@@ -69,6 +69,7 @@ public class DerbyTrackManager
 	private final TreeMap<Integer, HistoryInfo> _history = new TreeMap<>(); // List holding old race records.
 	private final Map<Integer, Long> _betsPerLane = new ConcurrentHashMap<>(); // Map holding all bets for each lane ; values are set to 0 after every race.
 	private final List<Double> _odds = new ArrayList<>(); // List holding sorted odds per lane ; cleared at new odds calculation.
+	private final Object _betLock = new Object(); // Serializes bet updates, odds snapshots and race bet cleanup.
 	
 	private int _raceNumber = 1;
 	private int _finalCountdown = 0;
@@ -289,17 +290,20 @@ public class DerbyTrackManager
 	 */
 	private void clearBets()
 	{
-		for (int key : _betsPerLane.keySet())
-			_betsPerLane.put(key, 0L);
-		
-		try (Connection con = ConnectionPool.getConnection();
-			PreparedStatement ps = con.prepareStatement(CLEAR_BETS))
+		synchronized (_betLock)
 		{
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOGGER.error("Can't clear Derby Track bets.", e);
+			for (int key : _betsPerLane.keySet())
+				_betsPerLane.put(key, 0L);
+			
+			try (Connection con = ConnectionPool.getConnection();
+				PreparedStatement ps = con.prepareStatement(CLEAR_BETS))
+			{
+				ps.execute();
+			}
+			catch (Exception e)
+			{
+				LOGGER.error("Can't clear Derby Track bets.", e);
+			}
 		}
 	}
 	
@@ -311,22 +315,23 @@ public class DerbyTrackManager
 	 */
 	public void setBetOnLane(int lane, long amount, boolean saveOnDb)
 	{
-		final long sum = _betsPerLane.getOrDefault(lane, 0L) + amount;
-		
-		_betsPerLane.put(lane, sum);
-		
-		if (saveOnDb)
+		synchronized (_betLock)
 		{
-			try (Connection con = ConnectionPool.getConnection();
-				PreparedStatement ps = con.prepareStatement(SAVE_BETS))
+			final long sum = _betsPerLane.merge(lane, amount, Long::sum);
+			
+			if (saveOnDb)
 			{
-				ps.setInt(1, lane);
-				ps.setLong(2, sum);
-				ps.execute();
-			}
-			catch (Exception e)
-			{
-				LOGGER.error("Can't save Derby Track bet.", e);
+				try (Connection con = ConnectionPool.getConnection();
+					PreparedStatement ps = con.prepareStatement(SAVE_BETS))
+				{
+					ps.setInt(1, lane);
+					ps.setLong(2, sum);
+					ps.execute();
+				}
+				catch (Exception e)
+				{
+					LOGGER.error("Can't save Derby Track bet.", e);
+				}
 			}
 		}
 	}
@@ -336,20 +341,23 @@ public class DerbyTrackManager
 	 */
 	private void calculateOdds()
 	{
-		// Clear previous List holding old odds.
-		_odds.clear();
-		
-		// Sort bets lanes per lane.
-		final Map<Integer, Long> sortedLanes = new TreeMap<>(_betsPerLane);
-		
-		// Pass a first loop in order to calculate total sum of all lanes.
-		long sumOfAllLanes = 0;
-		for (long amount : sortedLanes.values())
-			sumOfAllLanes += amount;
-		
-		// As we get the sum, we can now calculate the odd rate of each lane.
-		for (long amount : sortedLanes.values())
-			_odds.add((amount == 0) ? 0D : Math.max(1.25, sumOfAllLanes * 0.7 / amount));
+		synchronized (_betLock)
+		{
+			// Clear previous List holding old odds.
+			_odds.clear();
+			
+			// Sort bets lanes per lane.
+			final Map<Integer, Long> sortedLanes = new TreeMap<>(_betsPerLane);
+			
+			// Pass a first loop in order to calculate total sum of all lanes.
+			long sumOfAllLanes = 0;
+			for (long amount : sortedLanes.values())
+				sumOfAllLanes += amount;
+			
+			// As we get the sum, we can now calculate the odd rate of each lane.
+			for (long amount : sortedLanes.values())
+				_odds.add((amount == 0) ? 0D : Math.max(1.25, sumOfAllLanes * 0.7 / amount));
+		}
 	}
 	
 	private void countdown()
