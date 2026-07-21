@@ -30,13 +30,20 @@ public class GameServerListener extends FloodProtectedListener
 	@Override
 	public void addClient(Socket s)
 	{
+		GameServerThread gameServer = null;
 		try
 		{
-			// Cria uma nova thread para lidar com a comunicação com o Game Server e a adiciona à lista.
-			_gameServers.add(new GameServerThread(s));
+			// Registra a thread antes de iniciá-la para que o cleanup nunca possa correr antes da inclusão na lista.
+			gameServer = new GameServerThread(s);
+			_gameServers.add(gameServer);
+			gameServer.start();
 		}
-		catch (IOException e)
+		catch (IOException | RuntimeException e)
 		{
+			if (gameServer != null)
+				_gameServers.remove(gameServer);
+			
+			removeFloodProtection(s.getInetAddress().getHostAddress());
 			LOGGER.error("Falha ao inicializar a GameServerThread, fechando conexão.", e);
 			try
 			{

@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.l2j.commons.logging.CLogger;
 
@@ -47,6 +48,7 @@ public class GameServerThread extends Thread
 	
 	// Conjunto de contas atualmente online neste Game Server.
 	private final Set<String> _accountsOnGameServer = new HashSet<>();
+	private final AtomicBoolean _cleanupDone = new AtomicBoolean();
 	
 	private final Socket _connection;
 	private final String _connectionIp;
@@ -79,23 +81,21 @@ public class GameServerThread extends Thread
 		
 		// Inicializa a criptografia com uma chave estática temporária.
 		_blowfish = new NewCrypt("_;v.]05-31!|+-%xT!^[$\00");
-		
-		start();
 	}
 	
 	@Override
 	public void run()
 	{
-		// Garante que não haverá mais processamento para esta conexão se o servidor for considerado banido.
-		if (IpBanManager.getInstance().isBannedAddress(_connection.getInetAddress()))
-		{
-			LOGGER.info("O gameserver banido com o IP {} tentou se registrar.", _connection.getInetAddress().getHostAddress());
-			forceClose(LoginServerFail.REASON_IP_BANNED);
-			return;
-		}
-		
 		try
 		{
+			// Garante que não haverá mais processamento para esta conexão se o servidor for considerado banido.
+			if (IpBanManager.getInstance().isBannedAddress(_connection.getInetAddress()))
+			{
+				LOGGER.info("O gameserver banido com o IP {} tentou se registrar.", _connection.getInetAddress().getHostAddress());
+				forceClose(LoginServerFail.REASON_IP_BANNED);
+				return;
+			}
+			
 			// Envia o pacote de inicialização com a chave pública RSA.
 			sendPacket(new InitLS(_publicKey.getModulus().toByteArray()));
 			
@@ -187,25 +187,37 @@ public class GameServerThread extends Thread
 		}
 		finally
 		{
-			try
-			{
-				_connection.close();
-			}
-			catch (IOException e)
-			{
-				LOGGER.debug("Falha ao fechar conexão do gameserver {}.", e, _connectionIp);
-			}
-			
-			// Se o gameserver estava autenticado, marca-o como desconectado.
-			if (isAuthed())
-			{
-				_gsi.setDown();
-				LOGGER.info("GameServer [{}] {} foi definido como desconectado.", getServerId(), GameServerManager.getInstance().getServerNames().get(getServerId()));
-			}
-			// Remove o gameserver da lista de listeners.
-			LoginServer.getInstance().getGameServerListener().removeGameServer(this);
-			LoginServer.getInstance().getGameServerListener().removeFloodProtection(_connectionIp);
+			cleanup();
 		}
+	}
+	
+	/**
+	 * Executa o encerramento da conexão uma única vez, independentemente do caminho de saída da thread.
+	 */
+	private void cleanup()
+	{
+		if (!_cleanupDone.compareAndSet(false, true))
+			return;
+		
+		try
+		{
+			_connection.close();
+		}
+		catch (IOException e)
+		{
+			LOGGER.debug("Falha ao fechar conexão do gameserver {}.", e, _connectionIp);
+		}
+		
+		// Se o gameserver estava autenticado, marca-o como desconectado.
+		if (isAuthed())
+		{
+			_gsi.setDown();
+			LOGGER.info("GameServer [{}] {} foi definido como desconectado.", getServerId(), GameServerManager.getInstance().getServerNames().get(getServerId()));
+		}
+		
+		final GameServerListener listener = LoginServer.getInstance().getGameServerListener();
+		listener.removeGameServer(this);
+		listener.removeFloodProtection(_connectionIp);
 	}
 	
 	/**
