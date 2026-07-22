@@ -292,8 +292,7 @@ private volatile List<Double> _odds = new ArrayList<>(); // List holding sorted 
 	{
 		synchronized (_betLock)
 		{
-			for (int key : _betsPerLane.keySet())
-				_betsPerLane.put(key, 0L);
+			_betsPerLane.replaceAll((k, v) -> 0L);
 			
 			try (Connection con = ConnectionPool.getConnection();
 				PreparedStatement ps = con.prepareStatement(CLEAR_BETS))
