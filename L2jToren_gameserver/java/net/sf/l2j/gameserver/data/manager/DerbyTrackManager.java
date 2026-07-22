@@ -68,7 +68,7 @@ public class DerbyTrackManager
 	private final List<Npc> _runners = new ArrayList<>(); // List holding initial npcs, shuffled on a new race.
 	private final TreeMap<Integer, HistoryInfo> _history = new TreeMap<>(); // List holding old race records.
 	private final Map<Integer, Long> _betsPerLane = new ConcurrentHashMap<>(); // Map holding all bets for each lane ; values are set to 0 after every race.
-	private final List<Double> _odds = new ArrayList<>(); // List holding sorted odds per lane ; cleared at new odds calculation.
+private volatile List<Double> _odds = new ArrayList<>(); // List holding sorted odds per lane ; cleared at new odds calculation.
 	private final Object _betLock = new Object(); // Serializes bet updates, odds snapshots and race bet cleanup.
 	
 	private int _raceNumber = 1;
